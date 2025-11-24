@@ -1,0 +1,50 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+model Plant {
+  id                 Int      @id @default(autoincrement())
+  custom_name        String   @db.VarChar(100)
+  name               String   @db.VarChar(100)
+  type               String   @db.VarChar(50)
+  location           String   @db.VarChar(100)
+  date_planted       DateTime @db.Date
+  last_prun          DateTime @db.Date
+  last_water         DateTime @db.Date
+  last_fertelized    DateTime @db.Date
+  gen_data           Json     @db.Json
+  botanical_name     String   @db.VarChar(50)
+  pref_sun           Decimal  @db.Decimal(5, 2)
+  pref_air_humidity  Decimal  @db.Decimal(5, 2)
+  pref_soil_humidity Decimal  @db.Decimal(5, 2)
+
+  sensorData SensorData[]
+
+  @@map("PLANT")
+}
+
+model SensorData {
+  sensor_data_id  Int      @id @default(autoincrement())
+  plant_id        Int
+  timestamp       DateTime @db.Timestamp(0)
+  temperature     Decimal  @db.Decimal(5, 2)
+  humidity_air    Decimal  @db.Decimal(5, 2)
+  light_intensity Decimal  @db.Decimal(5, 2)
+  humidity_soil   Decimal  @db.Decimal(5, 2) @map("Humidity_soil")
+  co2_amount      Decimal  @db.Decimal(5, 2) @map("CO2_amount")
+
+  plant Plant @relation(fields: [plant_id], references: [id])
+
+  @@index([plant_id])
+  @@map("SENSOR_DATA")
+}
