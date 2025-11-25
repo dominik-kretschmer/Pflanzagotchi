@@ -4,7 +4,7 @@ import PlantCard from "~/components/plantCard.vue";
 </script>
 
 <template>
-<plant-card></plant-card>
+<plant-card art="" humidity="" name="" stamm="" sun="" water=""></plant-card>
 </template>
 
 <style scoped>

@@ -4,9 +4,9 @@ import PlantCard from "~/components/plantCard.vue";
 
 
 const plants = [
-  { name: 'Phillip', art: 'Sonnenblume', stamm: 'winzig' },
-  { name: 'Herbert', art: 'Kaktus', stamm: 'stachelig' },
-  { name: 'Susi', art: 'Rose', stamm: 'dornig' }
+  { name: 'Phillip', art: 'Sonnenblume', stamm: 'winzig',water: 100, sun: 100, humidity: 100 },
+  { name: 'Herbert', art: 'Kaktus', stamm: 'stachelig',water: 67, sun: 12, humidity: 45  },
+  { name: 'Susi', art: 'Rose', stamm: 'dornig',water: 95, sun: 64, humidity: 12  }
 ];
 </script>
 
@@ -18,6 +18,9 @@ const plants = [
           :name="plant.name" 
           :art="plant.art" 
           :stamm="plant.stamm"
+          :water="plant.water"
+          :sun="plant.sun"
+          :humidity="plant.humidity"
         />
       </v-col>
     </v-row>
