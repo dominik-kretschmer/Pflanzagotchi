@@ -2,23 +2,154 @@
     border: 2px solid #111;
     background-color: #222;
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
+    width: 100%;
+    max-width: 100%;
 }
 
 .hp-bar-label {
     color: white;
     font-weight: 700;
-    font-size: 0.8rem;
+    font-size: clamp(0.75rem, 1.3vw, 0.9rem);
     text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
     width: 100%;
     text-align: center;
 }
 
+
 .plant-card {
-    max-width: 360px;
+    width: 100%;
+    max-width: 420px;
+    margin-inline: auto;
     transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .plant-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+
+.detail-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.25rem 1rem 1.75rem;
+}
+
+
+.title {
+    font-size: clamp(1.5rem, 3.3vw, 2.3rem);
+    font-weight: 700;
+}
+
+.subtitle {
+    font-weight: 400;
+    font-size: clamp(1rem, 2.3vw, 1.15rem);
+}
+
+
+.image-card {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+
+.image-card img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+
+.placeholder {
+    min-height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.7;
+    font-style: italic;
+}
+
+.placeholder.small {
+    min-height: 80px;
+}
+
+
+dl {
+    margin: 0;
+}
+
+
+.row {
+    display: grid;
+    grid-template-columns: 1fr;
+    padding: 0.35rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    gap: 0.1rem;
+}
+
+.row:last-of-type {
+    border-bottom: none;
+}
+
+dt {
+    opacity: 0.8;
+    font-weight: 600;
+}
+
+dd {
+    margin: 0;
+}
+
+
+.metric-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.image-list {
+    max-height: 40vh;
+    overflow-y: auto;
+}
+
+@media (min-width: 640px) {
+    .detail-page {
+        padding: 1.75rem 1.25rem 2rem;
+    }
+
+    .row {
+        grid-template-columns: 160px 1fr;
+        gap: 0.5rem 1rem;
+    }
+
+    .placeholder {
+        min-height: 200px;
+    }
+
+    .image-list {
+        max-height: 45vh;
+    }
+}
+
+@media (min-width: 768px) {
+    .detail-page {
+        padding-inline: 1.5rem;
+    }
+
+    .plant-card {
+        max-width: 360px;
+        margin-inline: 0;
+    }
+}
+
+@media (min-width: 1024px) {
+    .detail-page {
+        padding-top: 2rem;
+        padding-bottom: 2.5rem;
+    }
+
+    .image-list {
+        max-height: 50vh;
+    }
 }

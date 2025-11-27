@@ -1,5 +1,6 @@
 <script setup lang="ts">
 defineProps<{
+  id: number;
   name: string;
   art: string;
   stamm: string;
@@ -8,16 +9,13 @@ defineProps<{
   humidity: number;
 }>()
 </script>
-
 <template>
   <v-card class="plant-card" elevation="2" rounded="lg">
     <v-img src="/img/phil.png" height="500px" cover alt="Pflanze"/>
-
     <v-card-item>
       <v-card-title>{{ name }}</v-card-title>
       <v-card-subtitle>{{ art }}</v-card-subtitle>
     </v-card-item>
-
     <v-card-text>
       Sein Stamm ist {{ stamm }}.
     </v-card-text>
@@ -28,11 +26,9 @@ defineProps<{
     </v-card-item>
     <v-card-actions>
       <v-spacer/>
-      <v-btn color="primary" variant="elevated">Mehr erfahren</v-btn>
+      <NuxtLink :to="`/plant${id}`">
+        Öffnen
+      </NuxtLink>
     </v-card-actions>
   </v-card>
 </template>
-
-<style scoped>
-
-</style>
