@@ -26,3 +26,9 @@ logs
 /app/generated/prisma
 
 /app/generated/prisma
+
+/src/generated/prisma
+
+/generated/prisma
+
+/generated/prisma

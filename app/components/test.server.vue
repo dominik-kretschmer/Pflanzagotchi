@@ -1,5 +1,5 @@
 <script setup>
-import {prisma} from '../../lib/prisma'
+import {prisma} from "~~/lib/prisma.ts";
 const Plant = await prisma.plant.findFirst()
 </script>
 

@@ -9,6 +9,7 @@ export const usePlants = () => {
     const fetchAllPlants = async () => {
 
     }
+
     const fetchPlant = async (id: number) => {
 
     }

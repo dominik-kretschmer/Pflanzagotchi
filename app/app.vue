@@ -7,6 +7,6 @@
   </div>
 </template>
 <script setup lang="ts">
-import './assets/css/plant.css'
-import test from './components/test.server.vue'
+import './assets/css/plant.css';
+import test from './components/test.server.vue';
 </script>

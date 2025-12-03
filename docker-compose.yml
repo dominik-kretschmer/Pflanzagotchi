@@ -1,16 +1,22 @@
+version: '3.8'
+
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: mysql_db
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: test12345
-      MYSQL_DATABASE: plant_db
-      MYSQL_USER: sudo
-      MYSQL_PASSWORD: test
+  db:
+    image: postgres:15
+    container_name: pflanzagotchi_db
+    env_file:
+      - .env
     ports:
-      - "3306:3306"
+      - "5432:5432"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - db-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
 volumes:
-  mysql_data:
+  db-data:
