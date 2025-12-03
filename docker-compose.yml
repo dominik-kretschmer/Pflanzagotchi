@@ -1,5 +1,4 @@
 version: '3.8'
-
 services:
   db:
     image: postgres:15
@@ -16,7 +15,5 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
-
 volumes:
   db-data:
