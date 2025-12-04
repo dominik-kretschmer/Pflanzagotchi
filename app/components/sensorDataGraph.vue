@@ -65,11 +65,32 @@
 </template>
 
 <script setup lang="ts">
+import {computed} from "vue";
+import type {PlantDTO} from "~/types/Plant";
+import type {SensorData} from "~/types/SensorData";
+
 const props = defineProps<{
   hasSensorData: boolean
-  recentCount: number
-  temperatureValues: number[]
-  airHumidityValues: number[]
-  soilHumidityValues: number[]
+  plant: (PlantDTO & { sensorData?: SensorData[] }) | null
 }>()
+const numeric = (value: string | number) => {
+  const num = typeof value === 'string' ? Number(value) : value
+  return Number.isNaN(num) ? 0 : num
+}
+const recentData = computed<SensorData[]>(() => {
+  if (!props.plant?.sensorData?.length) return []
+  const maxPoints = 24
+  const data = props.plant.sensorData
+  console.log(data ,"penis")
+  return data.slice(-maxPoints)
+})
+const temperatureValues = computed<number[]>(() =>
+    recentData.value.map(d => numeric(d.temperature))
+)
+const airHumidityValues = computed<number[]>(() =>
+    recentData.value.map(d => numeric(d.humidity_air))
+)
+const soilHumidityValues = computed<number[]>(() =>
+    recentData.value.map(d => numeric(d.humidity_soil))
+)
 </script>
