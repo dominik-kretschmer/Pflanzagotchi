@@ -118,16 +118,6 @@ const filteredPlants = computed(() => {
       :locations="locations"
       :types="types"
     />
-    <v-alert
-      v-if="!pending && !error && !filteredPlants.length"
-      type="info"
-      variant="tonal"
-      border="start"
-      class="mb-4"
-    >
-      Keine Pflanzen gefunden. Passe die Filter an oder lege eine neue Pflanze
-      an.
-    </v-alert>
     <v-row v-if="pending">
       <v-col v-for="i in 6" :key="i" cols="12" sm="6" md="4" lg="3">
         <v-skeleton-loader type="image, article" />
