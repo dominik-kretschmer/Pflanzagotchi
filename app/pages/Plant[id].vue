@@ -28,15 +28,15 @@
           <PlantHeroCard :plant="plant" />
           <BasisAttributeGrid :plant="plant" />
           <GrowthLoreCard :growth="plant.gen_data?.growth" />
-          <SensorDataGraph :hasSensorData="hasSensorData" :plant="plant" />
+          <SensorDataGraph :has-sensor-data="hasSensorData" :plant="plant" />
           <v-expansion-panels multiple>
             <v-expansion-panel v-if="allImages.length">
               <galerieExpPanel :images="allImages" />
             </v-expansion-panel>
             <v-expansion-panel>
               <rawDataExpPanel
-                :hasSensorData="hasSensorData"
-                :sensorData="plant.sensorData || []"
+                :has-sensor-data="hasSensorData"
+                :sensor-data="plant.sensorData || []"
               />
             </v-expansion-panel>
           </v-expansion-panels>
