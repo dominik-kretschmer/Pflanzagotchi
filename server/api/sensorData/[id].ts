@@ -44,7 +44,7 @@ export default defineEventHandler(async (event) => {
         where: { sensor_data_id: id },
       });
     }
-  } catch (err: any) {
+  } catch (err) {
     if (err.code === "P2025") {
       throw createError({
         statusCode: 404,
