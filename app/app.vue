@@ -4,5 +4,5 @@
   </div>
 </template>
 <script setup lang="ts">
-import './assets/css/plant.css';
+import "./assets/css/plant.css";
 </script>

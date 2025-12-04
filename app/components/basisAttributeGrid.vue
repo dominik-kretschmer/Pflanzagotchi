@@ -1,24 +1,24 @@
 <script setup lang="ts">
-import {useFormat} from '@/composables/useFormat'
-import type {PlantDTO} from '@/types/plants'
+import { useFormat } from "@/composables/useFormat";
+import type { PlantDTO } from "@/types/plants";
 
 const props = defineProps<{
-  plant: PlantDTO
-}>()
+  plant: PlantDTO;
+}>();
 
-const formater = useFormat()
+const formater = useFormat();
 
 const numeric = (value: string | number) => {
-  const num = typeof value === 'string' ? Number(value) : value
-  return Number.isNaN(num) ? 0 : num
-}
+  const num = typeof value === "string" ? Number(value) : value;
+  return Number.isNaN(num) ? 0 : num;
+};
 
 const clampPercent = (value: string | number) => {
-  const n = numeric(value)
-  if (n < 0) return 0
-  if (n > 100) return 100
-  return n
-}
+  const n = numeric(value);
+  if (n < 0) return 0;
+  if (n > 100) return 100;
+  return n;
+};
 </script>
 
 <template>
@@ -38,11 +38,11 @@ const clampPercent = (value: string | number) => {
                 {{ formater.formatDecimal(plant.pref_sun) }}%
               </div>
               <v-progress-linear
-                  class="mt-3"
-                  color="amber"
-                  :model-value="clampPercent(plant.pref_sun)"
-                  rounded
-                  height="8"
+                class="mt-3"
+                color="amber"
+                :model-value="clampPercent(plant.pref_sun)"
+                rounded
+                height="8"
               />
             </v-card-text>
           </v-card>
@@ -58,11 +58,11 @@ const clampPercent = (value: string | number) => {
                 {{ formater.formatDecimal(plant.pref_air_humidity) }}%
               </div>
               <v-progress-linear
-                  class="mt-3"
-                  color="info"
-                  :model-value="clampPercent(plant.pref_air_humidity)"
-                  rounded
-                  height="8"
+                class="mt-3"
+                color="info"
+                :model-value="clampPercent(plant.pref_air_humidity)"
+                rounded
+                height="8"
               />
             </v-card-text>
           </v-card>
@@ -78,11 +78,11 @@ const clampPercent = (value: string | number) => {
                 {{ formater.formatDecimal(plant.pref_soil_humidity) }}%
               </div>
               <v-progress-linear
-                  class="mt-3"
-                  color="success"
-                  :model-value="clampPercent(plant.pref_soil_humidity)"
-                  rounded
-                  height="8"
+                class="mt-3"
+                color="success"
+                :model-value="clampPercent(plant.pref_soil_humidity)"
+                rounded
+                height="8"
               />
             </v-card-text>
           </v-card>
