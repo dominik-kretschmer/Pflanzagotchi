@@ -1,7 +1,6 @@
 import { prisma } from "~~/lib/prisma";
 
 export default defineEventHandler(async (event) => {
-  console.log("called plant index.ts");
   const method = event.method;
 
   if (method === "GET") {

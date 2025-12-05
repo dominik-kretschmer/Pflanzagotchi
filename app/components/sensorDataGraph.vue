@@ -71,7 +71,6 @@ const recentData = computed<SensorData[]>(() => {
   if (!props.plant?.sensorData?.length) return [];
   const maxPoints = 24;
   const data = props.plant.sensorData;
-  console.log(data, "penis");
   return data.slice(-maxPoints);
 });
 const temperatureValues = computed<number[]>(() =>
