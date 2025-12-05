@@ -1,4 +1,3 @@
-// server/utils/plantApi.ts
 export type PlantApiParams = Record<
   string,
   string | number | boolean | undefined | null
@@ -11,7 +10,6 @@ export const callPlantApi = async (
   console.log("funzt");
 
   const config = useRuntimeConfig();
-
   const base = config.plantApiBase;
   const token = config.plantApiToken;
 
