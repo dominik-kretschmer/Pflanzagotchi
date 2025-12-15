@@ -74,17 +74,17 @@ const onSubmit = (e: Event) => {
 </script>
 
 <template>
-  <v-container fluid class="py-10">
+  <v-container  class="py-10">
     <!-- HEADER -->
-    <v-row class="mb-8" align="center">
-      <v-col cols="12" md="8">
+    <v-row class="mb-0" align="center">
+      <v-col cols="12" md="9">
         <div class="d-flex align-center ga-4 mb-2">
-          <v-avatar color="primary" variant="tonal" size="48">
-            <v-icon size="28">mdi-magnify</v-icon>
+          <v-avatar color="primary" variant="tonal" size="25">
+            <v-icon size="18">mdi-magnify</v-icon>
           </v-avatar>
 
           <div>
-            <h1 class="text-h4 font-weight-bold mb-1">Pflanzen-Suche</h1>
+            <h1 class="text-h6 font-weight-bold mb-1">Pflanzen-Suche</h1>
             <p class="text-body-2 text-medium-emphasis mb-0">
               Gib den <strong>Namen</strong> oder
               <strong>wissenschaftlichen Namen</strong> ein, um passende
