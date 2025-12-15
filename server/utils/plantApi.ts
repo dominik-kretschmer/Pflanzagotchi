@@ -7,19 +7,9 @@ export const callPlantApi = async (
   path: string,
   params: PlantApiParams = {},
 ) => {
-  console.log("funzt");
-
   const config = useRuntimeConfig();
-  const base = config.plantApiBase;
-  const token = config.plantApiToken;
-
-  if (!base || !token) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: "Plant API not configured properly",
-    });
-  }
-
+  const base = config.apiBase;
+  const token = config.apiKey;
   const url = new URL(`${base}${path}`);
 
   url.searchParams.set("token", token);

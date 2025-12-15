@@ -1,9 +1,9 @@
 const endPoints = {
-  plants: "/api/plant",
-  searchPlants: "/api/plant/search",
-  species: "/api/species",
-  searchSpecies: "/api/species/search",
-  genus: "/api/genus",
+  plants: "/api/trefle/plant",
+  searchPlants: "/api/trefle/plant/search",
+  species: "/api/trefle/species",
+  searchSpecies: "/api/trefle/species/search",
+  genus: "/api/trefle/genus",
 };
 
 export const useApi = () => {

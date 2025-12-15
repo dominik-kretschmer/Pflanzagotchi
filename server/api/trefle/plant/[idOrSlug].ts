@@ -1,5 +1,5 @@
 // server/api/plants/[idOrSlug].get.ts
-import { callPlantApi } from "~/../server/utils/plantApi";
+import { callPlantApi } from "~~/server/utils/plantApi";
 
 export default defineEventHandler(async (event) => {
   const idOrSlug = getRouterParam(event, "idOrSlug");

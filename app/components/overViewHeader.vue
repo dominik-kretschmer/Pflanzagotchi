@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// Definition der Props, die von index.vue übergeben werden
 defineProps<{
   plantCount: number;
   avgSun: number;

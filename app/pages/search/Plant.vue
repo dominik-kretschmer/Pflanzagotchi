@@ -1,18 +1,43 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useApi } from "@/composables/useApi";
-import type { PlantDTO } from "@/types/plants";
 
 const { searchPlants } = useApi();
 
-// UI State
+interface TreflePlant {
+  id: number;
+  common_name: string | null;
+  slug: string;
+  scientific_name: string;
+  year: number | null;
+  author: string | null;
+  family: string | null;
+  genus: string | null;
+  image_url: string | null;
+}
+
+interface TrefleSearchResponse {
+  data: TreflePlant[];
+  links: {
+    self: string;
+    first?: string;
+    last?: string;
+  };
+  meta: {
+    total: number;
+  };
+}
+
 const query = ref("");
 const pending = ref(false);
 const error = ref<string | null>(null);
-const results = ref<PlantDTO[]>([]);
+const results = ref<TreflePlant[]>([]);
 const hasSearched = ref(false);
+const total = ref<number | null>(null);
 
-// Search trigger
+const fallbackImage =
+  "https://via.placeholder.com/400x300?text=Keine+Pflanzenbild+verf%C3%BCgbar";
+
 const onSearch = async () => {
   const q = query.value.trim();
   if (!q) return;
@@ -21,10 +46,20 @@ const onSearch = async () => {
   error.value = null;
   hasSearched.value = true;
   results.value = [];
+  total.value = null;
 
   try {
-    const apiResult = await searchPlants(q);
-    results.value = apiResult?.data ?? apiResult ?? [];
+    const apiResult = (await searchPlants(q)) as
+      | TrefleSearchResponse
+      | TreflePlant[];
+
+    if (Array.isArray(apiResult)) {
+      results.value = apiResult;
+      total.value = apiResult.length;
+    } else {
+      results.value = apiResult?.data ?? [];
+      total.value = apiResult?.meta?.total ?? results.value.length;
+    }
   } catch (e: any) {
     error.value = e?.message ?? "Fehler beim Abrufen der Pflanzen.";
   } finally {
@@ -51,8 +86,9 @@ const onSubmit = (e: Event) => {
           <div>
             <h1 class="text-h4 font-weight-bold mb-1">Pflanzen-Suche</h1>
             <p class="text-body-2 text-medium-emphasis mb-0">
-              Gib den <strong>wissenschaftlichen Namen</strong> ein, um passende
-              Pflanzen über die Trefle-API zu finden.
+              Gib den <strong>Namen</strong> oder
+              <strong>wissenschaftlichen Namen</strong> ein, um passende
+              Pflanzen zu finden.
             </p>
           </div>
         </div>
@@ -67,7 +103,7 @@ const onSubmit = (e: Event) => {
             v-model="query"
             variant="outlined"
             density="comfortable"
-            label="Wissenschaftlicher Name (z. B. Monstera deliciosa)"
+            label="Pflanzenname (z. B. Monstera deliciosa)"
             prepend-inner-icon="mdi-leaf"
             clearable
             hide-details
@@ -119,7 +155,9 @@ const onSubmit = (e: Event) => {
           variant="tonal"
           border="start"
         >
-          {{ results.length }} Ergebnis{{ results.length === 1 ? "" : "se" }}
+          {{ total ?? results.length }} Ergebnis{{
+            (total ?? results.length) === 1 ? "" : "se"
+          }}
           gefunden.
         </v-alert>
       </v-col>
@@ -145,8 +183,8 @@ const onSubmit = (e: Event) => {
         <v-card rounded="xl" elevation="4" class="h-100 d-flex flex-column">
           <!-- IMAGE -->
           <v-img
-            :src="plant.gen_data?.image_url || fallbackImage"
-            :alt="plant.custom_name || plant.name"
+            :src="plant.image_url || fallbackImage"
+            :alt="plant.common_name || plant.scientific_name"
             height="200"
             cover
           >
@@ -161,67 +199,33 @@ const onSubmit = (e: Event) => {
           </v-img>
 
           <v-card-text class="pb-2">
-            <!-- MAIN NAMES -->
+            <!-- MAIN NAME -->
             <div class="text-subtitle-1 font-weight-bold mb-1">
-              {{ plant.custom_name || plant.name }}
+              {{ plant.common_name || plant.scientific_name }}
             </div>
 
+            <!-- SCIENTIFIC NAME -->
             <div class="text-caption text-medium-emphasis mb-3">
-              <em>{{ plant.botanical_name }}</em>
+              <em>{{ plant.scientific_name }}</em>
             </div>
 
-            <!-- LOCATION + TYPE -->
-            <div class="mb-3 text-body-2 text-medium-emphasis">
-              Typ: <strong>{{ plant.type }}</strong
-              ><br />
-              Standort: <strong>{{ plant.location }}</strong>
-            </div>
-
-            <!-- PREFS -->
-            <div class="d-flex flex-column ga-2">
-              <div class="d-flex justify-space-between">
-                <span class="text-caption text-medium-emphasis">Sonne</span>
-                <span class="text-caption">{{ plant.pref_sun }}%</span>
+            <!-- FAMILY / GENUS / YEAR -->
+            <div class="text-body-2 text-medium-emphasis mb-2">
+              <div v-if="plant.genus">
+                Gattung: <strong>{{ plant.genus }}</strong>
               </div>
-              <v-progress-linear
-                :model-value="plant.pref_sun"
-                color="amber"
-                height="6"
-                rounded
-              />
-
-              <div class="d-flex justify-space-between">
-                <span class="text-caption text-medium-emphasis"
-                  >Luftfeuchte</span
-                >
-                <span class="text-caption">{{ plant.pref_air_humidity }}%</span>
+              <div v-if="plant.family">
+                Familie: <strong>{{ plant.family }}</strong>
               </div>
-              <v-progress-linear
-                :model-value="plant.pref_air_humidity"
-                color="info"
-                height="6"
-                rounded
-              />
-
-              <div class="d-flex justify-space-between">
-                <span class="text-caption text-medium-emphasis"
-                  >Bodenfeuchte</span
-                >
-                <span class="text-caption"
-                  >{{ plant.pref_soil_humidity }}%</span
-                >
+              <div v-if="plant.year">
+                Jahr: <strong>{{ plant.year }}</strong>
+                <span v-if="plant.author"> ({{ plant.author }})</span>
               </div>
-              <v-progress-linear
-                :model-value="plant.pref_soil_humidity"
-                color="success"
-                height="6"
-                rounded
-              />
             </div>
           </v-card-text>
 
           <v-card-actions class="mt-auto justify-end px-4 pb-4">
-            <v-btn :to="`/plants/${plant.id}`" color="primary" variant="text">
+            <v-btn :to="`/plants/${plant.slug}`" color="primary" variant="text">
               Details
               <v-icon end>mdi-chevron-right</v-icon>
             </v-btn>
