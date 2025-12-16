@@ -3,8 +3,6 @@ import { computed } from "vue";
 import { useRoute } from "vue-router";
 import { useApi } from "~/composables/useApi";
 
-type AnyRecord = Record<string, any>;
-
 const route = useRoute();
 const slug = computed(() => String(route.params.slug ?? ""));
 
@@ -26,7 +24,7 @@ const pickName = (v: unknown, fallback = "—") => {
   if (!v) return fallback;
   if (typeof v === "string") return safeText(v, fallback);
   if (typeof v === "object") {
-    const o: any = v;
+    const o = v;
     return o.common_name || o.scientific_name || o.name || o.slug || fallback;
   }
   return safeText(v, fallback);
@@ -56,15 +54,13 @@ const {
   { watch: [slug] },
 );
 
-const plant = computed<AnyRecord | null>(() => {
-  const r: any = apiResponse.value;
+const plant = computed(() => {
+  const r = apiResponse.value;
   if (!r) return null;
-  return (r.data ?? r) as AnyRecord;
+  return r.data ?? r;
 });
 
-const main = computed(
-  () => (plant.value?.main_species ?? plant.value ?? null) as AnyRecord | null,
-);
+const main = computed(() => plant.value?.main_species ?? plant.value ?? null);
 
 const title = computed(() => {
   const p = plant.value;
@@ -132,8 +128,7 @@ const imageGroups = computed<
     for (const [key, arr] of Object.entries(imgsObj)) {
       if (!Array.isArray(arr)) continue;
       const group = key?.trim() ? key : "weitere";
-      for (const it of arr as any[])
-        add(group, it?.image_url ?? it, it?.copyright);
+      for (const it of arr) add(group, it?.image_url ?? it, it?.copyright);
     }
   }
 
@@ -182,8 +177,8 @@ const synonyms = computed(() => {
   const s = main.value?.synonyms ?? plant.value?.synonyms;
   if (!Array.isArray(s)) return [];
   return s
-    .map((x: any) => x?.name ?? x)
-    .map((x: any) => String(x ?? "").trim())
+    .map((x) => x?.name ?? x)
+    .map((x) => String(x ?? "").trim())
     .filter(Boolean);
 });
 
@@ -267,7 +262,7 @@ const links = computed(() => {
     <v-row v-if="error" class="mb-6">
       <v-col cols="12">
         <v-alert type="error" variant="tonal" border="start">
-          {{ (error as any)?.message ?? "Fehler beim Abrufen der Pflanze." }}
+          {{ error?.message ?? "Fehler beim Abrufen der Pflanze." }}
         </v-alert>
       </v-col>
     </v-row>

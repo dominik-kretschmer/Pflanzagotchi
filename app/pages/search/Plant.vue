@@ -1,32 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useApi } from "@/composables/useApi";
-
+import type { TreflePlant, TrefleSearchResponse } from "~/types/Plant";
 const { searchPlants } = useApi();
-
-interface TreflePlant {
-  id: number;
-  common_name: string | null;
-  slug: string;
-  scientific_name: string;
-  year: number | null;
-  author: string | null;
-  family: string | null;
-  genus: string | null;
-  image_url: string | null;
-}
-
-interface TrefleSearchResponse {
-  data: TreflePlant[];
-  links: {
-    self: string;
-    first?: string;
-    last?: string;
-  };
-  meta: {
-    total: number;
-  };
-}
 
 const query = ref("");
 const pending = ref(false);
@@ -60,7 +36,7 @@ const onSearch = async () => {
       results.value = apiResult?.data ?? [];
       total.value = apiResult?.meta?.total ?? results.value.length;
     }
-  } catch (e: any) {
+  } catch (e) {
     error.value = e?.message ?? "Fehler beim Abrufen der Pflanzen.";
   } finally {
     pending.value = false;
@@ -74,7 +50,7 @@ const onSubmit = (e: Event) => {
 </script>
 
 <template>
-  <v-container  class="py-10">
+  <v-container class="py-10">
     <!-- HEADER -->
     <v-row class="mb-0" align="center">
       <v-col cols="12" md="9">

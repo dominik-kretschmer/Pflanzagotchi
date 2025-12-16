@@ -1,12 +1,15 @@
 <script setup lang="ts">
 const navItems = [
-  {title: "Suche", to: "/search/Plant", icon: "mdi-magnify"},
-  {title: "Pflanzen", to: "/", icon: "mdi-leaf"},
+  { title: "Suche", to: "/search/Plant", icon: "mdi-magnify" },
+  { title: "Pflanzen", to: "/", icon: "mdi-leaf" },
 ];
 </script>
 
 <template>
-  <v-container fluid class="d-flex align-center justify-space-between bg-blue-lighten-2 w-100 ma-0">
+  <v-container
+    fluid
+    class="d-flex align-center justify-space-between bg-blue-lighten-2"
+  >
     <div class="d-flex align-center ga-5">
       <v-avatar color="primary" variant="tonal" size="50">
         <v-icon>mdi-sprout</v-icon>
@@ -15,11 +18,11 @@ const navItems = [
     </div>
     <div class="d-flex align-center ga-2">
       <v-btn
-          v-for="item in navItems"
-          :key="item.title"
-          :to="item.to"
-          variant="text"
-          color="primary"
+        v-for="item in navItems"
+        :key="item.title"
+        :to="item.to"
+        variant="text"
+        color="primary"
       >
         <v-icon start>{{ item.icon }}</v-icon>
         {{ item.title }}

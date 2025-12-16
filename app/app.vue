@@ -8,4 +8,3 @@ import TopNav from "~/components/topNav.vue";
     <nuxt-page />
   </div>
 </template>
-

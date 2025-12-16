@@ -61,5 +61,29 @@ export interface PlantGrowth {
   ph_maximum?: number;
 }
 
+export interface TreflePlant {
+  id: number;
+  common_name: string | null;
+  slug: string;
+  scientific_name: string;
+  year: number | null;
+  author: string | null;
+  family: string | null;
+  genus: string | null;
+  image_url: string | null;
+}
+
+export interface TrefleSearchResponse {
+  data: TreflePlant[];
+  links: {
+    self: string;
+    first?: string;
+    last?: string;
+  };
+  meta: {
+    total: number;
+  };
+}
+
 export type PlantCreateInput = Omit<PlantDTO, "id">;
 export type PlantUpdateInput = Partial<Omit<PlantDTO, "id">>;
