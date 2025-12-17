@@ -61,7 +61,6 @@ const plant = computed(() => {
 });
 
 const main = computed(() => plant.value?.main_species ?? plant.value ?? null);
-
 const title = computed(() => {
   const p = plant.value;
   return (

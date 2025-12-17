@@ -84,6 +84,21 @@ export interface TrefleSearchResponse {
     total: number;
   };
 }
-
+export interface TreflePlantDetails  {
+    data?: {
+        id?: number;
+        common_name?: string | null;
+        scientific_name?: string | null;
+        slug?: string;
+        image_url?: string | null;
+        main_species?: {
+            id?: number;
+            images?: Record<string, Array<{ image_url?: string; copyright?: string }>>;
+            growth?: Record<string, unknown>;
+            sources?: Array<{ id?: number; name?: string; url?: string; last_update?: string }>;
+        };
+        sources?: Array<{ id?: number; name?: string; url?: string; last_update?: string }>;
+    };
+};
 export type PlantCreateInput = Omit<PlantDTO, "id">;
 export type PlantUpdateInput = Partial<Omit<PlantDTO, "id">>;
