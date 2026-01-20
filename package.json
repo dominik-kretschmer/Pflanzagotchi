@@ -8,10 +8,8 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "format": "prettier --check .",
-    "format:fix": "prettier --write ."
+    "lint": "eslint . --fix",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",

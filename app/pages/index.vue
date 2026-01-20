@@ -109,6 +109,7 @@ const filteredPlants = computed(() => {
       :avg-air-humidity="avgAirHumidity"
       :avg-soil-humidity="avgSoilHumidity"
     />
+
     <SearchFilterBar
       v-if="!error"
       v-model:search="search"
@@ -118,11 +119,13 @@ const filteredPlants = computed(() => {
       :locations="locations"
       :types="types"
     />
+
     <v-row v-if="pending">
       <v-col v-for="i in 6" :key="i" cols="12" sm="6" md="4" lg="3">
         <v-skeleton-loader type="image, article" />
       </v-col>
     </v-row>
+
     <v-alert
       v-else-if="error"
       type="error"
@@ -133,27 +136,55 @@ const filteredPlants = computed(() => {
     >
       Fehler beim Laden der Pflanzen: {{ error.message }}
     </v-alert>
-    <v-alert
-      v-else-if="!filteredPlants.length"
-      type="info"
-      variant="tonal"
-      border="start"
-      class="mb-4"
-    >
-      Keine Pflanzen gefunden. Passe die Filter an oder lege eine neue Pflanze
-      an.
-    </v-alert>
-    <v-row v-else>
-      <v-col
-        v-for="plant in filteredPlants"
-        :key="plant.id"
-        cols="12"
-        sm="6"
-        md="4"
-        lg="3"
+
+    <template v-else>
+      <v-alert
+        v-if="!filteredPlants.length"
+        type="info"
+        variant="tonal"
+        border="start"
+        class="mb-4"
       >
-        <PlantCard :plant="plant" />
-      </v-col>
-    </v-row>
+        Keine Pflanzen gefunden. Passe die Filter an oder lege eine neue Pflanze
+        an.
+      </v-alert>
+
+      <v-row>
+        <v-col
+          v-for="plant in filteredPlants"
+          :key="plant.id"
+          cols="12"
+          sm="6"
+          md="4"
+          lg="3"
+        >
+          <PlantCard :plant="plant" />
+        </v-col>
+
+        <v-col cols="12" sm="6" md="4" lg="3">
+          <v-card
+            class="add-plant-card"
+            variant="outlined"
+            link
+            to="/CreatePlantForm"
+          >
+            <v-card-text
+              class="d-flex flex-column align-center justify-center h-100"
+            >
+              <v-icon size="56">mdi-plus</v-icon>
+              <div class="text-subtitle-1 mt-2">Pflanze anlegen</div>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+    </template>
   </v-container>
 </template>
+
+<style scoped>
+.add-plant-card {
+  height: 601px;
+  border-style: dashed;
+  cursor: pointer;
+}
+</style>

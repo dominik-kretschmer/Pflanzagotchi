@@ -11,11 +11,14 @@ const navItems = [
     class="d-flex align-center justify-space-between bg-blue-lighten-2"
   >
     <div class="d-flex align-center ga-5">
-      <v-avatar color="primary" variant="tonal" size="50">
-        <v-icon>mdi-sprout</v-icon>
-      </v-avatar>
+      <NuxtLink to="/" style="text-decoration: none">
+        <v-avatar color="primary" variant="tonal" size="50">
+          <v-icon>mdi-sprout</v-icon>
+        </v-avatar>
+      </NuxtLink>
       <h1 class="text-h3 font-weight-bold mb-0">Pflanzagotchi</h1>
     </div>
+
     <div class="d-flex align-center ga-2">
       <v-btn
         v-for="item in navItems"
