@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import type { GrowthData } from "@/types/Plant";
+import type { PlantGrowth } from "@/types/Plant";
 
 const props = defineProps<{
-  growth: GrowthData | null | undefined;
+  growth: PlantGrowth | null | undefined;
 }>();
 
 const hasAverageHeight = computed(() => {

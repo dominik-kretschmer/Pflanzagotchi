@@ -54,15 +54,14 @@ function updateIsoFromInput(currentIso: string, newDatePart: string): string {
   return `${newDatePart}T${timePart}`;
 }
 
-function defaultGenData(data): PlantGenData {
-  console.log("test3", data);
-  if (data)
+function defaultGenData(data?: any): PlantGenData {
+  if (data && Object.keys(data).length > 0)
     return {
       api_id: data.api_id,
       image_url: data.image_url,
-      images: data.images,
-      growth: data.growth,
-      sources: data.sources,
+      images: data.images || {},
+      growth: data.growth || {},
+      sources: data.sources || [],
     };
   return {
     api_id: 0,
@@ -104,7 +103,6 @@ watch(
 watch(genDataJson, (val) => {
   try {
     const parsed = JSON.parse(val) as PlantGenData;
-    console.log(parsed.growth);
     model.value.gen_data = {
       api_id: Number(parsed?.api_id ?? 0),
       image_url: parsed?.image_url as string | null,
@@ -138,7 +136,6 @@ async function onSearch() {
     const apiResult = (await searchPlants(query.value.trim())) as
       | TrefleSearchResponse
       | TreflePlant[];
-    console.log(apiResult);
     searchResults.value = Array.isArray(apiResult)
       ? apiResult
       : (apiResult?.data ?? []);
@@ -154,7 +151,7 @@ function mapTrefleImagesToPlantImages(
     | Record<string, Array<{ image_url?: string; copyright?: string }>>
     | undefined,
 ): PlantImages {
-  if (!imgs) return;
+  if (!imgs) return {};
 
   const out: PlantImages = {};
 
@@ -180,10 +177,9 @@ function mapTrefleImagesToPlantImages(
 }
 
 function mapAnyGrowthToPlantGrowth(g): PlantGrowth {
-  console.log("test2", g);
-  if (!g) return;
+  if (!g) return {};
   const asNumber = (v: unknown) =>
-    typeof v === "number" ? v : typeof v === "string" ? Number(v) : undefined;
+    typeof v === "number" ? v : typeof v === "string" && v.trim() !== "" ? Number(v) : undefined;
 
   const pick = <T,>(v: unknown): T | undefined =>
     v === null || v === undefined ? undefined : (v as T);
@@ -228,7 +224,6 @@ async function onPickResult(p: TreflePlant) {
       .map((s) => s?.url || s?.name)
       .filter(Boolean)
       .map((x) => String(x));
-    console.log("test1", main?.growth);
     model.value.gen_data = {
       api_id: Number(p.id ?? 0),
       image_url: p.image_url ?? null,
