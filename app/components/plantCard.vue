@@ -2,14 +2,12 @@
 import type { PlantDTO } from "@/types/Plant";
 import { useFormat } from "@/composables/useFormat";
 
-// Wir übergeben das gesamte Plant-Objekt, da das Template 'plant.xxx' verwendet
 defineProps<{
   plant: PlantDTO;
 }>();
 
 const formater = useFormat();
 
-// Helper Funktionen lokal im Component
 const mainImageForPlant = (plant: PlantDTO): string | null => {
   if (plant.gen_data?.image_url) return plant.gen_data.image_url;
   const imgs = plant.gen_data?.images;

@@ -8,7 +8,6 @@
         Letzte {{ recentData.length }} Messungen
       </span>
     </v-card-title>
-
     <v-card-text>
       <v-row>
         <v-col cols="12" md="4">
