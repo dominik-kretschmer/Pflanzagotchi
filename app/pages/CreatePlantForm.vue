@@ -3,6 +3,7 @@ import { computed, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useApi } from "~/composables/useApi";
 import { usePlants } from "~/composables/usePlants";
+import { useFormat } from "~/composables/useFormat";
 import type {
   PlantCreateInput,
   PlantGenData,
@@ -16,6 +17,7 @@ import type {
 const router = useRouter();
 const { searchPlants, getPlant } = useApi();
 const { createPlant } = usePlants();
+const { formatDateForInput } = useFormat();
 const isSubmitting = ref(false);
 const isSearching = ref(false);
 const isLoadingDetails = ref(false);
@@ -39,11 +41,6 @@ const plantTypeOptions = [
 
 function todayIso(): string {
   return new Date().toISOString();
-}
-
-function formatDateForInput(isoString: string): string {
-  if (!isoString) return "";
-  return isoString.split("T")[0];
 }
 
 function updateIsoFromInput(currentIso: string, newDatePart: string): string {

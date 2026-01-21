@@ -2,11 +2,13 @@
 import { computed } from "vue";
 import { useRoute } from "vue-router";
 import { useApi } from "~/composables/useApi";
+import { useFormat } from "~/composables/useFormat";
 
 const route = useRoute();
 const slug = computed(() => String(route.params.slug ?? ""));
 
 const { getPlant } = useApi();
+const { formatDate } = useFormat();
 
 const fallbackImage =
   "https://via.placeholder.com/1200x700?text=Kein+Pflanzenbild+verf%C3%BCgbar";
@@ -36,12 +38,6 @@ const normalizeList = (v: unknown): string[] => {
 };
 
 const isUrl = (s: unknown) => typeof s === "string" && /^https?:\/\//i.test(s);
-
-const formatDate = (iso: unknown) => {
-  if (typeof iso !== "string") return "—";
-  const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? iso : d.toLocaleString();
-};
 
 const {
   data: apiResponse,
@@ -447,7 +443,7 @@ const links = computed(() => {
                   </v-list-item-title>
 
                   <v-list-item-subtitle>
-                    Letztes Update: {{ formatDate(s.last_update) }}
+                    Letztes Update: {{ s.last_update ? formatDate(s.last_update) : '—' }}
                   </v-list-item-subtitle>
 
                   <template #append>
@@ -646,13 +642,11 @@ const links = computed(() => {
               </v-expansion-panels>
             </v-card-text>
           </v-card>
-
           <v-card rounded="xl" elevation="4">
             <v-card-title class="d-flex align-center ga-2">
               <v-icon>mdi-map-marker-outline</v-icon>
               Verbreitung
             </v-card-title>
-
             <v-card-text>
               <div class="text-caption text-medium-emphasis mb-2">Nativ</div>
               <div class="d-flex flex-wrap ga-2 mb-5">
@@ -670,7 +664,6 @@ const links = computed(() => {
                   >—</span
                 >
               </div>
-
               <div class="text-caption text-medium-emphasis mb-2">
                 Eingeführt
               </div>
@@ -693,7 +686,6 @@ const links = computed(() => {
           </v-card>
         </v-col>
       </v-row>
-
       <v-row v-if="Object.keys(imageGroups).length" class="mb-10">
         <v-col cols="12">
           <v-card rounded="xl" elevation="4">
@@ -701,7 +693,6 @@ const links = computed(() => {
               <v-icon>mdi-image-multiple-outline</v-icon>
               Galerie (kategorisiert)
             </v-card-title>
-
             <v-card-text>
               <v-expansion-panels variant="accordion">
                 <v-expansion-panel
@@ -718,7 +709,6 @@ const links = computed(() => {
                       >
                     </div>
                   </v-expansion-panel-title>
-
                   <v-expansion-panel-text>
                     <v-row>
                       <v-col

@@ -14,9 +14,18 @@ export const useFormat = () => {
     if (Number.isNaN(num)) return "-";
     return num.toFixed(2);
   };
+
+  const formatDateForInput = (value: string | Date | null | undefined) => {
+    if (!value) return "";
+    const date = typeof value === "string" ? new Date(value) : value;
+    if (Number.isNaN(date.getTime())) return "";
+    return date.toISOString().split("T")[0];
+  };
+
   return {
     formatDate,
     formatDateTime,
     formatDecimal,
+    formatDateForInput,
   };
 };
