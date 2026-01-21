@@ -38,7 +38,7 @@ const preferenceChipColor = (value: number) => {
     <v-img
       :src="mainImageForPlant(plant) || undefined"
       :alt="plant.custom_name || plant.name"
-      height="200"
+      height="250"
       cover
     >
       <template #placeholder>
