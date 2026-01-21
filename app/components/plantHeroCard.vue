@@ -220,6 +220,8 @@ const mainImageUrl = computed(() => {
 
 <style scoped>
 .text-outline {
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9), 0 0 10px rgba(0, 0, 0, 0.5);
+  text-shadow:
+    2px 2px 4px rgba(0, 0, 0, 0.9),
+    0 0 10px rgba(0, 0, 0, 0.5);
 }
 </style>

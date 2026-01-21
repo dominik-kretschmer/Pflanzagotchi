@@ -54,20 +54,49 @@ function updateIsoFromInput(currentIso: string, newDatePart: string): string {
   return `${newDatePart}T${timePart}`;
 }
 
+function defaultPlantGrowth(data?: any): PlantGrowth {
+  const g = data || {};
+  return {
+    light: g.light ?? null,
+    sowing: g.sowing ?? null,
+    ph_maximum: g.ph_maximum ?? null,
+    ph_minimum: g.ph_minimum ?? null,
+    description: g.description ?? null,
+    growth_form: g.growth_form ?? null,
+    growth_rate: g.growth_rate ?? null,
+    growth_habit: g.growth_habit ?? null,
+    soil_humidity: g.soil_humidity ?? null,
+    days_to_harvest: g.days_to_harvest ?? null,
+    average_height_cm: g.average_height_cm
+      ? {
+          max: g.average_height_cm.max ?? null,
+          min: g.average_height_cm.min ?? null,
+        }
+      : { max: null, min: null },
+    maximum_height_cm: g.maximum_height_cm
+      ? {
+          max: g.maximum_height_cm.max ?? null,
+          min: g.maximum_height_cm.min ?? null,
+        }
+      : { max: null, min: null },
+    atmospheric_humidity: g.atmospheric_humidity ?? null,
+  };
+}
+
 function defaultGenData(data?: any): PlantGenData {
-  if (data && Object.keys(data).length > 0)
+  if (data && typeof data === "object")
     return {
-      api_id: data.api_id,
-      image_url: data.image_url,
+      api_id: Number(data.api_id ?? 0),
+      image_url: data.image_url ?? null,
       images: data.images || {},
-      growth: data.growth || {},
-      sources: data.sources || [],
+      growth: defaultPlantGrowth(data.growth),
+      sources: Array.isArray(data.sources) ? data.sources.map(String) : [],
     };
   return {
     api_id: 0,
     image_url: null,
     images: {},
-    growth: {},
+    growth: defaultPlantGrowth(),
     sources: [],
   };
 }
@@ -102,16 +131,8 @@ watch(
 
 watch(genDataJson, (val) => {
   try {
-    const parsed = JSON.parse(val) as PlantGenData;
-    model.value.gen_data = {
-      api_id: Number(parsed?.api_id ?? 0),
-      image_url: parsed?.image_url as string | null,
-      images: parsed?.images as PlantImages,
-      growth: parsed?.growth as PlantGrowth,
-      sources: Array.isArray(parsed?.sources)
-        ? parsed.sources.map((s) => String(s))
-        : [],
-    };
+    const parsed = JSON.parse(val);
+    model.value.gen_data = defaultGenData(parsed);
     genDataJsonError.value = null;
   } catch {
     genDataJsonError.value = "Ungültiges JSON.";
@@ -176,26 +197,35 @@ function mapTrefleImagesToPlantImages(
   return out;
 }
 
-function mapAnyGrowthToPlantGrowth(g): PlantGrowth {
-  if (!g) return {};
-  const asNumber = (v: unknown) =>
-    typeof v === "number" ? v : typeof v === "string" && v.trim() !== "" ? Number(v) : undefined;
+function mapAnyGrowthToPlantGrowth(mainSpecies: any): PlantGrowth {
+  if (!mainSpecies) return defaultPlantGrowth();
+  const g = mainSpecies.growth || {};
+  const s = mainSpecies.specifications || {};
 
-  const pick = <T,>(v: unknown): T | undefined =>
-    v === null || v === undefined ? undefined : (v as T);
-  const avg = pick<Record<string, unknown>>(g["average_height_cm"]);
-  const max = pick<Record<string, unknown>>(g["maximum_height_cm"]);
+  const asNumber = (v: unknown): number | null => {
+    if (typeof v === "number") return v;
+    if (typeof v === "string" && v.trim() !== "") {
+      const n = Number(v);
+      return isNaN(n) ? null : n;
+    }
+    return null;
+  };
+
+  const pick = <T,>(v: unknown): T | null =>
+    v === null || v === undefined ? null : (v as T);
 
   return {
-    growth_form: pick<string>(g["growth_form"]),
-    growth_habit: pick<string>(g["growth_habit"]),
-    growth_rate: pick<string>(g["growth_rate"]),
-    average_height_cm: avg
-      ? { min: asNumber(avg["min"]), max: asNumber(avg["max"]) }
-      : undefined,
-    maximum_height_cm: max
-      ? { min: asNumber(max["min"]), max: asNumber(max["max"]) }
-      : undefined,
+    growth_form: pick<string>(s["growth_form"]),
+    growth_habit: pick<string>(s["growth_habit"]),
+    growth_rate: pick<string>(s["growth_rate"]),
+    average_height_cm: {
+      max: asNumber(s["average_height"]?.["cm"]),
+      min: null, // Trefle liefert meist nur einen Wert unter cm
+    },
+    maximum_height_cm: {
+      max: asNumber(s["maximum_height"]?.["cm"]),
+      min: null,
+    },
     days_to_harvest: asNumber(g["days_to_harvest"]),
     sowing: pick<string>(g["sowing"]),
     description: pick<string>(g["description"]),
@@ -228,7 +258,7 @@ async function onPickResult(p: TreflePlant) {
       api_id: Number(p.id ?? 0),
       image_url: p.image_url ?? null,
       images: mapTrefleImagesToPlantImages(main?.images),
-      growth: mapAnyGrowthToPlantGrowth(main?.growth),
+      growth: mapAnyGrowthToPlantGrowth(main),
       sources: sourcesArr,
     };
   } catch (e: any) {

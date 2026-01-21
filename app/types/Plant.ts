@@ -40,25 +40,25 @@ export interface PlantImages {
 }
 
 export interface PlantGrowth {
-  growth_form?: string;
-  growth_habit?: string;
-  growth_rate?: string;
-  average_height_cm?: {
-    min?: number;
-    max?: number;
-  };
-  maximum_height_cm?: {
-    min?: number;
-    max?: number;
-  };
-  days_to_harvest?: number;
-  sowing?: string;
-  description?: string;
-  light?: number;
-  atmospheric_humidity?: number;
-  soil_humidity?: number;
-  ph_minimum?: number;
-  ph_maximum?: number;
+  growth_form: string | null;
+  growth_habit: string | null;
+  growth_rate: string | null;
+  average_height_cm: {
+    min: number | null;
+    max: number | null;
+  } | null;
+  maximum_height_cm: {
+    min: number | null;
+    max: number | null;
+  } | null;
+  days_to_harvest: number | null;
+  sowing: string | null;
+  description: string | null;
+  light: number | null;
+  atmospheric_humidity: number | null;
+  soil_humidity: number | null;
+  ph_minimum: number | null;
+  ph_maximum: number | null;
 }
 
 export interface TreflePlant {
@@ -99,6 +99,7 @@ export interface TreflePlantDetails {
         Array<{ image_url?: string; copyright?: string }>
       >;
       growth?: Record<string, unknown>;
+      specifications?: Record<string, unknown>;
       sources?: Array<{
         id?: number;
         name?: string;

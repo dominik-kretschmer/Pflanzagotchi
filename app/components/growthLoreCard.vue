@@ -122,7 +122,12 @@ const hasEnvPrefs = computed(() => {
         </v-col>
 
         <v-col v-if="growth.light != null" cols="12" md="4">
-          <div class="text-caption text-secondary mb-1">Licht</div>
+          <div class="d-flex justify-space-between align-center mb-1">
+            <div class="text-caption text-secondary">Light</div>
+            <div class="text-caption font-weight-bold">
+              {{ growth.light }}/10
+            </div>
+          </div>
           <v-progress-linear
             color="amber"
             :model-value="(growth.light || 0) * 10"
@@ -132,7 +137,12 @@ const hasEnvPrefs = computed(() => {
         </v-col>
 
         <v-col v-if="growth.atmospheric_humidity != null" cols="12" md="4">
-          <div class="text-caption text-secondary mb-1">Luftfeuchtigkeit</div>
+          <div class="d-flex justify-space-between align-center mb-1">
+            <div class="text-caption text-secondary">Luftfeuchtigkeit</div>
+            <div class="text-caption font-weight-bold">
+              {{ growth.atmospheric_humidity }}/10
+            </div>
+          </div>
           <v-progress-linear
             color="info"
             :model-value="(growth.atmospheric_humidity || 0) * 10"
@@ -142,7 +152,12 @@ const hasEnvPrefs = computed(() => {
         </v-col>
 
         <v-col v-if="growth.soil_humidity != null" cols="12" md="4">
-          <div class="text-caption text-secondary mb-1">Bodenfeuchtigkeit</div>
+          <div class="d-flex justify-space-between align-center mb-1">
+            <div class="text-caption text-secondary">Bodenfeuchtigkeit</div>
+            <div class="text-caption font-weight-bold">
+              {{ growth.soil_humidity }}/10
+            </div>
+          </div>
           <v-progress-linear
             color="success"
             :model-value="(growth.soil_humidity || 0) * 10"
