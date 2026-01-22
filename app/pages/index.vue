@@ -3,11 +3,13 @@ import { computed, ref } from "vue";
 import { useAsyncData } from "#app";
 import { usePlants } from "@/composables/usePlants";
 import type { PlantDTO } from "@/types/Plant";
+import { usePlantUtils } from "@/composables/usePlantUtils";
 import OverViewHeader from "~/components/overViewHeader.vue";
 import SearchFilterBar from "~/components/searchFilterBar.vue";
 import PlantCard from "~/components/plantCard.vue";
 
 const { fetchPlants } = usePlants();
+const { numeric, average } = usePlantUtils();
 
 const { data, pending, error } = await useAsyncData<PlantDTO[]>(
   "plants-overview",
@@ -20,21 +22,6 @@ const search = ref("");
 const locationFilter = ref<string | null>(null);
 const typeFilter = ref<string | null>(null);
 const sortBy = ref<"name" | "date" | "location">("name");
-
-const numeric = (value: unknown): number => {
-  if (typeof value === "number") return value;
-  if (typeof value === "string") {
-    const n = Number(value);
-    return Number.isNaN(n) ? 0 : n;
-  }
-  return 0;
-};
-
-const average = (values: number[]) => {
-  if (!values.length) return 0;
-  const sum = values.reduce((a, b) => a + b, 0);
-  return Math.round((sum / values.length) * 10) / 10;
-};
 
 const plantCount = computed(() => plants.value.length);
 

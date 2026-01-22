@@ -5,9 +5,9 @@ export interface PlantDTO {
   type: string;
   location: string;
   date_planted: string;
-  last_prun: string;
+  last_pruning: string;
   last_water: string;
-  last_fertelized: string;
+  last_fertilized: string;
   gen_data: PlantGenData;
   botanical_name: string;
   pref_sun: number;

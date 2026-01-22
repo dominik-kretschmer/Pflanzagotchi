@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useFormat } from "@/composables/useFormat";
-import type { PlantDTO } from "@/types/plants";
+import type { PlantDTO } from "@/types/Plant";
 
 const props = defineProps<{
   plant: PlantDTO;
@@ -109,7 +109,7 @@ const mainImageUrl = computed(() => {
             <v-icon size="14" color="warning">mdi-flask</v-icon>
             <span
               >Zuletzt gedüngt am
-              {{ formater.formatDate(plant.last_fertelized) }}</span
+              {{ formater.formatDate(plant.last_fertilized) }}</span
             >
           </div>
           <div
@@ -195,7 +195,7 @@ const mainImageUrl = computed(() => {
             <v-icon size="14" color="warning">mdi-flask</v-icon>
             <span
               >Zuletzt gedüngt am
-              {{ formater.formatDate(plant.last_fertelized) }}</span
+              {{ formater.formatDate(plant.last_fertilized) }}</span
             >
           </div>
           <div

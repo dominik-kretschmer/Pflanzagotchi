@@ -4,6 +4,8 @@ import { useRouter } from "vue-router";
 import { useApi } from "~/composables/useApi";
 import { usePlants } from "~/composables/usePlants";
 import { useFormat } from "~/composables/useFormat";
+import { usePlantDefaults } from "~/composables/usePlantDefaults";
+import PlantSearchTrefle from "~/components/PlantSearchTrefle.vue";
 import type {
   PlantCreateInput,
   PlantGenData,
@@ -17,7 +19,8 @@ import type {
 const router = useRouter();
 const { searchPlants, getPlant } = useApi();
 const { createPlant } = usePlants();
-const { formatDateForInput } = useFormat();
+const { formatDateForInput, todayIso, updateIsoFromInput } = useFormat();
+const { defaultPlantGrowth, defaultGenData } = usePlantDefaults();
 const isSubmitting = ref(false);
 const isSearching = ref(false);
 const isLoadingDetails = ref(false);
@@ -39,74 +42,15 @@ const plantTypeOptions = [
   "Sonstiges",
 ];
 
-function todayIso(): string {
-  return new Date().toISOString();
-}
-
-function updateIsoFromInput(currentIso: string, newDatePart: string): string {
-  if (!newDatePart) return currentIso;
-  const timePart = currentIso.includes("T")
-    ? currentIso.split("T")[1]
-    : "00:00:00.000Z";
-  return `${newDatePart}T${timePart}`;
-}
-
-function defaultPlantGrowth(data?: any): PlantGrowth {
-  const g = data || {};
-  return {
-    light: g.light ?? null,
-    sowing: g.sowing ?? null,
-    ph_maximum: g.ph_maximum ?? null,
-    ph_minimum: g.ph_minimum ?? null,
-    description: g.description ?? null,
-    growth_form: g.growth_form ?? null,
-    growth_rate: g.growth_rate ?? null,
-    growth_habit: g.growth_habit ?? null,
-    soil_humidity: g.soil_humidity ?? null,
-    days_to_harvest: g.days_to_harvest ?? null,
-    average_height_cm: g.average_height_cm
-      ? {
-          max: g.average_height_cm.max ?? null,
-          min: g.average_height_cm.min ?? null,
-        }
-      : { max: null, min: null },
-    maximum_height_cm: g.maximum_height_cm
-      ? {
-          max: g.maximum_height_cm.max ?? null,
-          min: g.maximum_height_cm.min ?? null,
-        }
-      : { max: null, min: null },
-    atmospheric_humidity: g.atmospheric_humidity ?? null,
-  };
-}
-
-function defaultGenData(data?: any): PlantGenData {
-  if (data && typeof data === "object")
-    return {
-      api_id: Number(data.api_id ?? 0),
-      image_url: data.image_url ?? null,
-      images: data.images || {},
-      growth: defaultPlantGrowth(data.growth),
-      sources: Array.isArray(data.sources) ? data.sources.map(String) : [],
-    };
-  return {
-    api_id: 0,
-    image_url: null,
-    images: {},
-    growth: defaultPlantGrowth(),
-    sources: [],
-  };
-}
-
 const model = ref<PlantCreateInput>({
   custom_name: "",
   name: "",
   type: "",
   location: "",
   date_planted: todayIso(),
-  last_prun: todayIso(),
+  last_pruning: todayIso(),
   last_water: todayIso(),
-  last_fertelized: todayIso(),
+  last_fertilized: todayIso(),
   botanical_name: "",
   gen_data: defaultGenData(),
 
@@ -142,8 +86,10 @@ const rules = {
 
 const canSearch = computed(() => query.value.trim().length >= 2);
 
-async function onSearch() {
-  if (!canSearch.value) return;
+async function onSearch(searchQuery?: string) {
+  const finalQuery = (searchQuery ?? query.value ?? "").trim();
+  if (finalQuery.length < 2) return;
+
   isSearching.value = true;
   searchError.value = null;
   detailsError.value = null;
@@ -151,7 +97,7 @@ async function onSearch() {
   searchResults.value = [];
 
   try {
-    const apiResult = (await searchPlants(query.value.trim())) as
+    const apiResult = (await searchPlants(finalQuery)) as
       | TrefleSearchResponse
       | TreflePlant[];
     searchResults.value = Array.isArray(apiResult)
@@ -277,7 +223,7 @@ async function onSubmit() {
     const newId = (created as any)?.id;
 
     if (typeof newId === "number") {
-      await router.push(`/plant${newId}`);
+      await router.push(`/Plant${newId}`);
     }
   } finally {
     isSubmitting.value = false;
@@ -297,9 +243,9 @@ function onReset() {
     type: "",
     location: "",
     date_planted: todayIso(),
-    last_prun: todayIso(),
+    last_pruning: todayIso(),
     last_water: todayIso(),
-    last_fertelized: todayIso(),
+    last_fertilized: todayIso(),
     botanical_name: "",
     gen_data: defaultGenData(),
     pref_sun: 50,
@@ -320,89 +266,15 @@ function onReset() {
           </v-card-subtitle>
           <v-divider />
           <v-card-text>
-            <v-card variant="tonal" rounded="lg" class="mb-4">
-              <v-card-title class="text-subtitle-1 d-flex align-center ga-2">
-                <v-icon>mdi-magnify</v-icon>
-                Daten aus der API übernehmen (optional)
-              </v-card-title>
-              <v-card-text>
-                <v-row align="center">
-                  <v-col cols="12" md="8">
-                    <v-text-field
-                      v-model="query"
-                      label="Pflanze suchen (Trefle)"
-                      placeholder="z. B. monstera"
-                      variant="outlined"
-                      density="comfortable"
-                      prepend-inner-icon="mdi-leaf"
-                      clearable
-                      hide-details
-                      @keyup.enter="onSearch"
-                    />
-                  </v-col>
-                  <v-col cols="12" md="4">
-                    <v-btn
-                      color="primary"
-                      variant="elevated"
-                      class="w-100"
-                      :loading="isSearching"
-                      :disabled="!canSearch"
-                      @click="onSearch"
-                    >
-                      Suchen
-                      <v-icon end>mdi-magnify</v-icon>
-                    </v-btn>
-                  </v-col>
-                  <v-col v-if="searchError" cols="12">
-                    <v-alert type="error" variant="tonal" border="start">
-                      {{ searchError }}
-                    </v-alert>
-                  </v-col>
-                  <v-col v-if="detailsError" cols="12">
-                    <v-alert type="error" variant="tonal" border="start">
-                      {{ detailsError }}
-                    </v-alert>
-                  </v-col>
-                  <v-col v-if="searchResults.length" cols="12">
-                    <v-select
-                      v-model="selectedTrefle"
-                      :items="searchResults"
-                      :loading="isLoadingDetails"
-                      item-title="scientific_name"
-                      return-object
-                      label="Suchergebnis auswählen (füllt gen_data + Namen)"
-                      variant="outlined"
-                      density="comfortable"
-                      prepend-inner-icon="mdi-database"
-                      @update:model-value="onPickResult"
-                    >
-                      <template #item="{ props, item }">
-                        <v-list-item v-bind="props">
-                          <template #prepend>
-                            <v-avatar size="32" color="primary" variant="tonal">
-                              <v-icon size="18">mdi-leaf</v-icon>
-                            </v-avatar>
-                          </template>
-                          <v-list-item-title>
-                            {{
-                              item.raw.common_name || item.raw.scientific_name
-                            }}
-                          </v-list-item-title>
-                          <v-list-item-subtitle>
-                            <span v-if="item.raw.common_name">
-                              <em>{{ item.raw.scientific_name }}</em>
-                            </span>
-                            <span v-else>
-                              {{ item.raw.slug }}
-                            </span>
-                          </v-list-item-subtitle>
-                        </v-list-item>
-                      </template>
-                    </v-select>
-                  </v-col>
-                </v-row>
-              </v-card-text>
-            </v-card>
+            <PlantSearchTrefle
+              :is-searching="isSearching"
+              :is-loading-details="isLoadingDetails"
+              :search-results="searchResults"
+              :search-error="searchError"
+              :details-error="detailsError"
+              @search="onSearch"
+              @select="onPickResult"
+            />
             <v-form ref="formRef">
               <v-row>
                 <v-col cols="12" md="6">
@@ -503,16 +375,16 @@ function onReset() {
                 </v-col>
                 <v-col cols="12" md="6">
                   <v-text-field
-                    :model-value="formatDateForInput(model.last_fertelized)"
-                    label="Zuletzt gedüngt (last_fertelized) *"
+                    :model-value="formatDateForInput(model.last_fertilized)"
+                    label="Zuletzt gedüngt (last_fertilized) *"
                     type="date"
                     variant="outlined"
                     density="comfortable"
                     prepend-inner-icon="mdi-sprout"
                     :rules="[rules.required]"
                     @update:model-value="
-                      model.last_fertelized = updateIsoFromInput(
-                        model.last_fertelized,
+                      model.last_fertilized = updateIsoFromInput(
+                        model.last_fertilized,
                         $event,
                       )
                     "
@@ -520,16 +392,16 @@ function onReset() {
                 </v-col>
                 <v-col cols="12" md="6">
                   <v-text-field
-                    :model-value="formatDateForInput(model.last_prun)"
-                    label="Zuletzt geschnitten (last_prun) *"
+                    :model-value="formatDateForInput(model.last_pruning)"
+                    label="Zuletzt geschnitten (last_pruning) *"
                     type="date"
                     variant="outlined"
                     density="comfortable"
                     prepend-inner-icon="mdi-content-cut"
                     :rules="[rules.required]"
                     @update:model-value="
-                      model.last_prun = updateIsoFromInput(
-                        model.last_prun,
+                      model.last_pruning = updateIsoFromInput(
+                        model.last_pruning,
                         $event,
                       )
                     "

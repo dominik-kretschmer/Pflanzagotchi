@@ -3,41 +3,18 @@ import { computed } from "vue";
 import { useRoute } from "vue-router";
 import { useApi } from "~/composables/useApi";
 import { useFormat } from "~/composables/useFormat";
+import { usePlantUtils } from "~/composables/usePlantUtils";
 
 const route = useRoute();
 const slug = computed(() => String(route.params.slug ?? ""));
 
 const { getPlant } = useApi();
 const { formatDate } = useFormat();
+const { safeText, yesNoUnknown, pickName, normalizeList, isUrl } =
+  usePlantUtils();
 
 const fallbackImage =
   "https://via.placeholder.com/1200x700?text=Kein+Pflanzenbild+verf%C3%BCgbar";
-
-const safeText = (v: unknown, fallback = "—") => {
-  if (v === null || v === undefined) return fallback;
-  const s = String(v).trim();
-  return s.length ? s : fallback;
-};
-
-const yesNoUnknown = (v: unknown) =>
-  v === true ? "Ja" : v === false ? "Nein" : "—";
-
-const pickName = (v: unknown, fallback = "—") => {
-  if (!v) return fallback;
-  if (typeof v === "string") return safeText(v, fallback);
-  if (typeof v === "object") {
-    const o = v;
-    return o.common_name || o.scientific_name || o.name || o.slug || fallback;
-  }
-  return safeText(v, fallback);
-};
-
-const normalizeList = (v: unknown): string[] => {
-  if (!Array.isArray(v)) return [];
-  return v.map((x) => String(x ?? "").trim()).filter(Boolean);
-};
-
-const isUrl = (s: unknown) => typeof s === "string" && /^https?:\/\//i.test(s);
 
 const {
   data: apiResponse,
@@ -443,7 +420,8 @@ const links = computed(() => {
                   </v-list-item-title>
 
                   <v-list-item-subtitle>
-                    Letztes Update: {{ s.last_update ? formatDate(s.last_update) : '—' }}
+                    Letztes Update:
+                    {{ s.last_update ? formatDate(s.last_update) : "—" }}
                   </v-list-item-subtitle>
 
                   <template #append>

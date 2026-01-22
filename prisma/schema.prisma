@@ -20,9 +20,9 @@ model Plant {
   type               String       @db.VarChar(50)
   location           String       @db.VarChar(100)
   date_planted       DateTime     @db.Date
-  last_prun          DateTime     @db.Date
+  last_pruning       DateTime     @db.Date
   last_water         DateTime     @db.Date
-  last_fertelized    DateTime     @db.Date
+  last_fertilized    DateTime     @db.Date
   gen_data           Json
   botanical_name     String       @db.VarChar(50)
   pref_sun           Decimal      @db.Decimal(65, 2)

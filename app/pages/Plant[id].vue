@@ -56,8 +56,8 @@ import galerieExpPanel from "@/components/galerieExpPanel.vue";
 import GrowthLoreCard from "@/components/growthLoreCard.vue";
 import BasisAttributeGrid from "@/components/basisAttributeGrid.vue";
 import PlantHeroCard from "@/components/plantHeroCard.vue";
-import type { PlantDTO } from "@/types/plants";
-import type { SensorData } from "@/types/sensordata";
+import type { PlantDTO } from "@/types/Plant";
+import type { SensorData } from "@/types/SensorData";
 
 type PlantDetail = PlantDTO & {
   sensorData: SensorData[];
