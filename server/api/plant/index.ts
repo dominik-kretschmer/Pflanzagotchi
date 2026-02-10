@@ -22,9 +22,46 @@ export default defineEventHandler(async (event) => {
   if (method === "POST") {
     try {
       const body = await readBody(event);
-      return await prisma.plant.create({
-        data: body,
+
+      // Map ISO strings to Date objects and Decimals for Prisma
+      const dateFields = [
+        "date_planted",
+        "last_pruning",
+        "last_water",
+        "last_fertilized",
+      ];
+      const decimalFields = [
+        "pref_sun",
+        "pref_air_humidity",
+        "pref_soil_humidity",
+      ];
+      const data: any = { ...body };
+
+      for (const field of dateFields) {
+        if (data[field]) {
+          data[field] = new Date(data[field]);
+        }
+      }
+
+      for (const field of decimalFields) {
+        if (data[field] !== undefined && data[field] !== null) {
+          data[field] = parseFloat(data[field]);
+        }
+      }
+
+      const newPlant = await prisma.plant.create({
+        data,
       });
+
+      // Track action for XP
+      try {
+        const { trackAction } = await import("~~/server/utils/xp");
+        await trackAction(1, "ADD_PLANT", newPlant.id);
+      } catch (e) {
+        console.error("Error tracking ADD_PLANT action", e);
+      }
+
+      return newPlant;
     } catch (err) {
       console.error("Error creating plant", err);
       throw createError({

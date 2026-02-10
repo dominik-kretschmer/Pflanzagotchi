@@ -1,12 +1,46 @@
 <script setup lang="ts">
 import type { PlantDTO } from "@/types/Plant";
 import { useFormat } from "@/composables/useFormat";
+import { usePlants } from "@/composables/usePlants";
+import { ref } from "vue";
 
-defineProps<{
+const props = defineProps<{
   plant: PlantDTO;
 }>();
 
 const formater = useFormat();
+const { updatePlant } = usePlants();
+
+const isWatering = ref(false);
+const isFertilizing = ref(false);
+
+const onWater = async () => {
+  isWatering.value = true;
+  try {
+    await updatePlant(props.plant.id, {
+      last_water: new Date().toISOString(),
+    });
+    window.location.reload();
+  } catch (e) {
+    console.error("Error watering plant", e);
+  } finally {
+    isWatering.value = false;
+  }
+};
+
+const onFertilize = async () => {
+  isFertilizing.value = true;
+  try {
+    await updatePlant(props.plant.id, {
+      last_fertilized: new Date().toISOString(),
+    });
+    window.location.reload();
+  } catch (e) {
+    console.error("Error fertilizing plant", e);
+  } finally {
+    isFertilizing.value = false;
+  }
+};
 
 const mainImageForPlant = (plant: PlantDTO): string | null => {
   if (plant.gen_data?.image_url) return plant.gen_data.image_url;
@@ -49,8 +83,13 @@ const preferenceChipColor = (value: number) => {
     </v-img>
 
     <v-card-text class="pb-3">
-      <div class="mb-1 text-overline text-medium-emphasis">
-        {{ plant.type }} · {{ plant.location }}
+      <div class="d-flex justify-space-between align-center mb-1">
+        <div class="text-overline text-medium-emphasis">
+          {{ plant.type }} · {{ plant.location }}
+        </div>
+        <v-chip size="x-small" color="success" variant="flat">
+          Lvl {{ plant.level }}
+        </v-chip>
       </div>
       <div class="text-subtitle-1 font-weight-bold">
         {{ plant.custom_name || plant.name }}
@@ -69,16 +108,29 @@ const preferenceChipColor = (value: number) => {
           seit {{ formater.formatDate(plant.date_planted) }}
         </v-chip>
         <v-chip
-          v-if="plant.gen_data?.sources?.length"
+          v-if="plant.health < 50"
           size="x-small"
-          color="info"
-          variant="tonal"
+          color="error"
+          variant="flat"
+          prepend-icon="mdi-heart-broken"
         >
-          {{ plant.gen_data.sources.length }} Quelle(n)
+          Hilfe nötig!
         </v-chip>
       </div>
 
       <div class="mt-4 d-flex flex-column ga-2">
+        <div class="d-flex align-center justify-space-between">
+          <span class="text-caption text-medium-emphasis text-uppercase">
+            Gesundheit
+          </span>
+          <span class="text-caption font-weight-bold">{{ plant.health }}%</span>
+        </div>
+        <v-progress-linear
+          :model-value="plant.health"
+          height="8"
+          rounded
+          color="success"
+        />
         <div class="d-flex align-center justify-space-between">
           <span class="text-caption text-medium-emphasis text-uppercase">
             Sonne
@@ -138,21 +190,44 @@ const preferenceChipColor = (value: number) => {
       </div>
     </v-card-text>
 
-    <v-card-actions class="mt-auto pt-0 px-4 pb-4 d-flex justify-space-between">
-      <div class="text-caption text-medium-emphasis">
-        Zuletzt gegossen:
-        <span class="font-weight-medium">
-          {{ formater.formatDate(plant.last_water) }}
-        </span>
+    <v-card-actions class="mt-auto pt-0 px-4 pb-4 flex-wrap ga-2">
+      <div class="w-100 d-flex justify-space-between align-center mb-2">
+        <div class="text-caption text-medium-emphasis">
+          Zuletzt gegossen:
+          <span class="font-weight-medium">
+            {{ formater.formatDate(plant.last_water) }}
+          </span>
+        </div>
+        <v-btn
+          :to="`/plant${plant.id}`"
+          variant="text"
+          color="primary"
+          size="small"
+          append-icon="mdi-chevron-right"
+        >
+          Details
+        </v-btn>
       </div>
+
       <v-btn
-        :to="`/plant${plant.id}`"
-        variant="text"
-        color="primary"
+        color="info"
+        variant="tonal"
         size="small"
-        append-icon="mdi-chevron-right"
+        prepend-icon="mdi-water"
+        :loading="isWatering"
+        @click="onWater"
       >
-        Details
+        Gießen
+      </v-btn>
+      <v-btn
+        color="success"
+        variant="tonal"
+        size="small"
+        prepend-icon="mdi-bottle-wine"
+        :loading="isFertilizing"
+        @click="onFertilize"
+      >
+        Düngen
       </v-btn>
     </v-card-actions>
   </v-card>

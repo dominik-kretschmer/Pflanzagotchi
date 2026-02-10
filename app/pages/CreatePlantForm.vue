@@ -8,7 +8,6 @@ import { usePlantDefaults } from "~/composables/usePlantDefaults";
 import PlantSearchTrefle from "~/components/PlantSearchTrefle.vue";
 import type {
   PlantCreateInput,
-  PlantGenData,
   PlantGrowth,
   PlantImages,
   TreflePlant,
@@ -53,7 +52,6 @@ const model = ref<PlantCreateInput>({
   last_fertilized: todayIso(),
   botanical_name: "",
   gen_data: defaultGenData(),
-
   pref_sun: 50,
   pref_air_humidity: 50,
   pref_soil_humidity: 50,
@@ -84,7 +82,6 @@ const rules = {
   required: (v: unknown) => (String(v ?? "").trim() ? true : "Pflichtfeld"),
 };
 
-const canSearch = computed(() => query.value.trim().length >= 2);
 
 async function onSearch(searchQuery?: string) {
   const finalQuery = (searchQuery ?? query.value ?? "").trim();
@@ -163,7 +160,7 @@ function mapAnyGrowthToPlantGrowth(mainSpecies: any): PlantGrowth {
     growth_rate: pick<string>(s["growth_rate"]),
     average_height_cm: {
       max: asNumber(s["average_height"]?.["cm"]),
-      min: null, // Trefle liefert meist nur einen Wert unter cm
+      min: null,
     },
     maximum_height_cm: {
       max: asNumber(s["maximum_height"]?.["cm"]),

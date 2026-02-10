@@ -20,14 +20,17 @@ model Plant {
   type               String       @db.VarChar(50)
   location           String       @db.VarChar(100)
   date_planted       DateTime     @db.Date
-  last_pruning       DateTime     @db.Date
+  last_pruning       DateTime     @db.Date @map("last_prun")
   last_water         DateTime     @db.Date
-  last_fertilized    DateTime     @db.Date
+  last_fertilized    DateTime     @db.Date @map("last_fertelized")
   gen_data           Json
   botanical_name     String       @db.VarChar(50)
   pref_sun           Decimal      @db.Decimal(65, 2)
   pref_air_humidity  Decimal      @db.Decimal(65, 2)
   pref_soil_humidity Decimal      @db.Decimal(65, 2)
+  xp                 Int          @default(0)
+  level              Int          @default(1)
+  health             Int          @default(100)
   sensorData         SensorData[]
 
   @@map("PLANT")
@@ -46,4 +49,64 @@ model SensorData {
 
   @@index([plant_id])
   @@map("SENSOR_DATA")
+}
+
+model User {
+  id           Int               @id @default(autoincrement())
+  email        String?           @unique @db.VarChar(255)
+  password     String?           @db.VarChar(255)
+  name         String?           @db.VarChar(100)
+  xp           Int               @default(0)
+  level        Int               @default(1)
+  achievements UserAchievement[]
+  quests       UserQuest[]
+
+  @@map("USER")
+}
+
+model Achievement {
+  id          Int               @id @default(autoincrement())
+  name        String            @db.VarChar(100)
+  description String            @db.VarChar(255)
+  xp_reward   Int
+  icon        String            @default("mdi-trophy")
+  users       UserAchievement[]
+
+  @@map("ACHIEVEMENT")
+}
+
+model UserAchievement {
+  id            Int         @id @default(autoincrement())
+  userId        Int         @map("user_id")
+  achievementId Int         @map("achievement_id")
+  earnedAt      DateTime    @default(now()) @map("earned_at")
+  user          User        @relation(fields: [userId], references: [id])
+  achievement   Achievement @relation(fields: [achievementId], references: [id])
+
+  @@map("USER_ACHIEVEMENT")
+}
+
+model DailyQuest {
+  id          Int         @id @default(autoincrement())
+  name        String      @db.VarChar(100)
+  description String      @db.VarChar(255)
+  xp_reward   Int
+  type        String      @db.VarChar(50)
+  target      Int         @default(1)
+  userQuests  UserQuest[]
+
+  @@map("DAILY_QUEST")
+}
+
+model UserQuest {
+  id           Int        @id @default(autoincrement())
+  userId       Int        @map("user_id")
+  questId      Int        @map("quest_id")
+  currentValue Int        @default(0) @map("current_value")
+  isCompleted  Boolean    @default(false) @map("is_completed")
+  lastUpdated  DateTime   @updatedAt @map("last_updated")
+  user         User       @relation(fields: [userId], references: [id])
+  quest        DailyQuest @relation(fields: [questId], references: [id])
+
+  @@map("USER_QUEST")
 }

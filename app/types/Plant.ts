@@ -13,6 +13,9 @@ export interface PlantDTO {
   pref_sun: number;
   pref_air_humidity: number;
   pref_soil_humidity: number;
+  xp: number;
+  level: number;
+  health: number;
 }
 
 export interface PlantGenData {

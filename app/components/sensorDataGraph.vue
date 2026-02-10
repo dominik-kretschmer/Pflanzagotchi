@@ -149,6 +149,7 @@ const soilHumidityValues = computed<number[]>(() =>
 );
 
 const timeLabels = computed(() => {
+  if (!recentData.value) return { start: "", end: "" };
   if (recentData.value.length === 0) return { start: "", end: "" };
   return {
     start: formatTime(recentData.value[0].timestamp),
