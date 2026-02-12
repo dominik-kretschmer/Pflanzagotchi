@@ -4,8 +4,8 @@ export default defineEventHandler(async () => {
   return await prisma.achievement.findMany({
     include: {
       users: {
-        where: { userId: 1 }
-      }
-    }
+        where: { userId: 1 },
+      },
+    },
   });
 });

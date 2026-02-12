@@ -47,8 +47,14 @@
 
             <div class="flex-grow-1">
               <div class="d-flex align-center justify-space-between mb-1">
-                <span class="text-h6 font-weight-bold">{{ uq.quest.name }}</span>
-                <v-chip size="small" :color="uq.isCompleted ? 'success' : 'secondary'" variant="flat">
+                <span class="text-h6 font-weight-bold">{{
+                  uq.quest.name
+                }}</span>
+                <v-chip
+                  size="small"
+                  :color="uq.isCompleted ? 'success' : 'secondary'"
+                  variant="flat"
+                >
                   +{{ uq.quest.xp_reward }} XP
                 </v-chip>
               </div>
@@ -68,8 +74,10 @@
                     </span>
                   </template>
                 </v-progress-linear>
-                
-                <v-icon v-if="uq.isCompleted" color="success">mdi-check-circle</v-icon>
+
+                <v-icon v-if="uq.isCompleted" color="success"
+                  >mdi-check-circle</v-icon
+                >
               </div>
             </div>
           </v-card-text>

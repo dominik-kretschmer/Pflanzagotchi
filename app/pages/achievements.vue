@@ -38,7 +38,10 @@
         <v-card
           rounded="xl"
           elevation="4"
-          :class="['h-100 d-flex flex-column', { 'earned-card': isEarned(ach) }]"
+          :class="[
+            'h-100 d-flex flex-column',
+            { 'earned-card': isEarned(ach) },
+          ]"
           variant="outlined"
           :color="isEarned(ach) ? 'primary' : 'grey-lighten-1'"
         >
@@ -49,7 +52,10 @@
               class="mb-4"
               variant="tonal"
             >
-              <v-icon size="48" :color="isEarned(ach) ? 'primary' : 'grey-darken-1'">
+              <v-icon
+                size="48"
+                :color="isEarned(ach) ? 'primary' : 'grey-darken-1'"
+              >
                 {{ ach.icon }}
               </v-icon>
             </v-avatar>
@@ -63,13 +69,20 @@
 
             <v-spacer />
 
-            <div v-if="isEarned(ach)" class="text-success d-flex align-center ga-1">
+            <div
+              v-if="isEarned(ach)"
+              class="text-success d-flex align-center ga-1"
+            >
               <v-icon size="18">mdi-check-circle</v-icon>
-              <span class="text-caption font-weight-bold">Erhalten am {{ formatDate(ach.users[0].earned_at) }}</span>
+              <span class="text-caption font-weight-bold"
+                >Erhalten am {{ formatDate(ach.users[0].earned_at) }}</span
+              >
             </div>
             <div v-else class="text-medium-emphasis d-flex align-center ga-1">
               <v-icon size="18">mdi-star-outline</v-icon>
-              <span class="text-caption font-weight-bold">+{{ ach.xp_reward }} XP Belohnung</span>
+              <span class="text-caption font-weight-bold"
+                >+{{ ach.xp_reward }} XP Belohnung</span
+              >
             </div>
           </v-card-text>
         </v-card>
@@ -83,7 +96,11 @@ import { useFormat } from "~/composables/useFormat";
 
 const { formatDate } = useFormat();
 
-const { data: achievements, pending, error } = await useFetch("/api/achievements");
+const {
+  data: achievements,
+  pending,
+  error,
+} = await useFetch("/api/achievements");
 
 const isEarned = (ach: any) => {
   return ach.users && ach.users.length > 0;

@@ -99,9 +99,7 @@
                     :color="plant.health > 50 ? 'success' : 'error'"
                     size="32"
                   >
-                    {{
-                      plant.health > 50 ? "mdi-heart" : "mdi-heart-pulse"
-                    }}
+                    {{ plant.health > 50 ? "mdi-heart" : "mdi-heart-pulse" }}
                   </v-icon>
                   <div class="flex-grow-1">
                     <v-progress-linear

@@ -82,7 +82,6 @@ const rules = {
   required: (v: unknown) => (String(v ?? "").trim() ? true : "Pflichtfeld"),
 };
 
-
 async function onSearch(searchQuery?: string) {
   const finalQuery = (searchQuery ?? query.value ?? "").trim();
   if (finalQuery.length < 2) return;

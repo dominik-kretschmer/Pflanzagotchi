@@ -3,7 +3,9 @@
 Last updated: 2026‑02‑09
 
 ## Overview
+
 Pflanzagotchi is a Nuxt 4 (Vue 3) application to catalog household plants, visualize recent sensor readings, and enrich plant records with external botanical data from the Trefle API. It provides:
+
 - An overview grid with search, filters, and sorting
 - Detailed plant pages with images, taxonomy, and curated facts (from Trefle)
 - A creation/editing workflow for local Plant records
@@ -17,6 +19,7 @@ Pflanzagotchi is a Nuxt 4 (Vue 3) application to catalog household plants, visua
 The app uses Vuetify 3 for UI components and Prisma as ORM, with Docker Compose for a local Postgres database.
 
 ## Tech Stack
+
 - Framework: Nuxt ^4.1 (Vue 3)
 - UI: Vuetify ^3.10, Material Design Icons (@mdi/font)
 - Language/Build: TypeScript, Vite (Nuxt’s Vite integration)
@@ -25,7 +28,9 @@ The app uses Vuetify 3 for UI components and Prisma as ORM, with Docker Compose 
 - External data: Trefle API (proxied through Nuxt server endpoints)
 
 ## Project Layout
+
 Root highlights:
+
 - app/ … Application code (pages, components, composables, plugins, assets)
 - server/ … Nuxt server routes (API) and utilities
 - prisma/ … Prisma schema and migrations
@@ -36,6 +41,7 @@ Root highlights:
 - nuxt.config.ts … Nuxt configuration (runtimeConfig, Vite/Vuetify integration)
 
 App subfolders:
+
 - app/pages
   - index.vue … Overview grid of plants from local DB
   - CreatePlantForm.vue … Form to create a local Plant
@@ -54,6 +60,7 @@ App subfolders:
   - Plant.ts, SensorData.ts … DTOs, helper interfaces
 
 Server subfolders:
+
 - server/api
   - plant/ … REST for local Plant
   - sensorData/ … REST for local SensorData
@@ -61,12 +68,15 @@ Server subfolders:
 - server/utils/plantApi.ts … Builds Trefle URLs with runtime config and token
 
 ## Runtime Configuration
+
 Defined in nuxt.config.ts as runtimeConfig:
+
 - apiBase: Base URL of the Trefle API (e.g., https://trefle.io/api/v1)
 - apiKey: API token for Trefle
 - public: {} (reserved for future public config)
 
 How to set values:
+
 - Nuxt loads runtime config from environment variables. Define:
   - NUXT_API_BASE=https://trefle.io/api/v1
   - NUXT_API_KEY=your_trefle_token
@@ -74,6 +84,7 @@ How to set values:
 These are consumed by server/utils/plantApi.ts to proxy and sign outbound calls.
 
 ## Database & ORM
+
 Prisma schema (prisma/schema.prisma) maps two core models onto uppercase tables (via @@map):
 
 - Plant (table: PLANT)
@@ -103,9 +114,11 @@ Prisma schema (prisma/schema.prisma) maps two core models onto uppercase tables 
 Prisma Client is created with @prisma/adapter-pg in lib/prisma.ts using DATABASE_URL.
 
 ## API Reference (Nuxt Server Routes)
+
 Base URL during dev: http://localhost:3000
 
 Local data (Postgres via Prisma):
+
 - GET /api/plant
   - Returns all plants including related sensorData.
 - POST /api/plant
@@ -129,6 +142,7 @@ Local data (Postgres via Prisma):
   - Deletes the row.
 
 External Trefle proxy (requires NUXT_API_BASE + NUXT_API_KEY):
+
 - GET /api/trefle/plant/search?q=<query>&...
 - GET /api/trefle/plant/:idOrSlug
 - GET /api/trefle/plant (pagination params supported)
@@ -138,6 +152,7 @@ External Trefle proxy (requires NUXT_API_BASE + NUXT_API_KEY):
 The proxy is implemented in server/utils/plantApi.ts (adds token and params).
 
 ## Frontend Features & Flows
+
 - Overview (app/pages/index.vue)
   - Fetches local plants via usePlants() and displays as PlantCard grid
   - Search (text), filter (location, type), and sort (name, date, location)
@@ -163,7 +178,9 @@ The proxy is implemented in server/utils/plantApi.ts (adds token and params).
   - Displays min/max and time range labels for readings
 
 ## Types & Data Contracts
+
 See app/types/Plant.ts (selection):
+
 - PlantDTO … shape used on the client (dates as ISO strings; decimals as number)
 - PlantGenData … image URLs, grouped images, growth info, sources
 - Trefle types: TreflePlant, TrefleSearchResponse, TreflePlantDetails
@@ -171,12 +188,15 @@ See app/types/Plant.ts (selection):
 Note: Server endpoints accept strings for dates/decimals and convert internally to Prisma-compatible Date/Decimal before persisting.
 
 ## Setup & Development
+
 Prerequisites:
+
 - Node.js 20+
 - Docker (for local Postgres) or an external PostgreSQL instance
 - Trefle API token (optional for local-only DB features; required for search/details)
 
-1) Configure environment
+1. Configure environment
+
 - Create a .env in the project root for Docker and Prisma, for example:
 
   POSTGRES_USER=pflanzagotchi
@@ -189,73 +209,82 @@ Prerequisites:
   NUXT_API_BASE=https://trefle.io/api/v1
   NUXT_API_KEY=your_trefle_token
 
-2) Start Postgres
+2. Start Postgres
+
 - docker compose up -d
 
-3) Generate client and run migrations
+3. Generate client and run migrations
+
 - npx prisma generate
 - npx prisma migrate dev --name init
 
-4) Install and run the app
+4. Install and run the app
+
 - npm install
 - npm run dev
 
 Dev URLs:
+
 - Web app: http://localhost:3000
 - API routes (examples): http://localhost:3000/api/plant, /api/sensorData
 
 ## Data Entry & Examples
+
 - Create a plant: POST /api/plant with JSON body like:
 
   {
-    "custom_name": "Schreibtisch-Monstera",
-    "name": "Monstera",
-    "type": "Zimmerpflanze",
-    "location": "Büro",
-    "date_planted": "2025-12-01",
-    "last_pruning": "2026-01-10",
-    "last_water": "2026-01-24",
-    "last_fertilized": "2026-01-05",
-    "gen_data": {
-      "api_id": 12345,
-      "image_url": null,
-      "images": {},
-      "growth": {},
-      "sources": []
-    },
-    "botanical_name": "Monstera deliciosa",
-    "pref_sun": 5.0,
-    "pref_air_humidity": 60.0,
-    "pref_soil_humidity": 40.0
+  "custom_name": "Schreibtisch-Monstera",
+  "name": "Monstera",
+  "type": "Zimmerpflanze",
+  "location": "Büro",
+  "date_planted": "2025-12-01",
+  "last_pruning": "2026-01-10",
+  "last_water": "2026-01-24",
+  "last_fertilized": "2026-01-05",
+  "gen_data": {
+  "api_id": 12345,
+  "image_url": null,
+  "images": {},
+  "growth": {},
+  "sources": []
+  },
+  "botanical_name": "Monstera deliciosa",
+  "pref_sun": 5.0,
+  "pref_air_humidity": 60.0,
+  "pref_soil_humidity": 40.0
   }
 
 - Add sensor data: POST /api/sensorData
 
   {
-    "plant_id": 1,
-    "timestamp": "2026-01-24T08:00:00Z",
-    "temperature": 22.5,
-    "humidity_air": 55.2,
-    "light_intensity": 300.0,
-    "humidity_soil": 42.0,
-    "co2_amount": 410.0
+  "plant_id": 1,
+  "timestamp": "2026-01-24T08:00:00Z",
+  "temperature": 22.5,
+  "humidity_air": 55.2,
+  "light_intensity": 300.0,
+  "humidity_soil": 42.0,
+  "co2_amount": 410.0
   }
 
 ## Styling & Theming
+
 - Vuetify is registered in app/plugins/vuetify.ts with default MDI icon set
 - Global/feature CSS resides in app/assets/css/plant.css and component-scoped styles
 
 ## Quality & Tooling
+
 - Lint: npm run lint (eslint . --fix)
 - Format: npm run format (prettier --write .)
 
 ## Troubleshooting
+
 - Database connection: Ensure DATABASE_URL matches running Postgres; for Docker the host is localhost:5432 by default in this compose file.
 - Prisma issues: Re-run npx prisma generate after schema edits. For migration conflicts, use migrate dev in local development.
 - Trefle API errors: Confirm NUXT_API_BASE and NUXT_API_KEY. The server proxy always injects the token as the token query param.
 - CORS: Calls to Trefle are routed from the server (no browser CORS needed).
 
 ## Roadmap (from gant.mmd)
+
 - Setup: Init milestone (2025‑10‑15)
 - UI: Docker Compose (DB), Cards, Styling + Statusbars
 - Prisma: Schema, connection, switch to Postgres
@@ -263,4 +292,5 @@ Dev URLs:
 - Cleanup / Finish: Redesign, Growth data fixes, and final refactoring (2026‑01‑22); Project Documentation (2026‑02‑09)
 
 ## License
+
 Internal/student project; add a proper license file if open-sourcing.
