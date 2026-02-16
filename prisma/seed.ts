@@ -45,6 +45,36 @@ async function main() {
       xp_reward: 1000,
       icon: "mdi-medal",
     },
+    {
+      name: "Pflanzensammler",
+      description: "Habe 10 verschiedene Pflanzen in deiner Sammlung.",
+      xp_reward: 1000,
+      icon: "mdi-flower-tulip",
+    },
+    {
+      name: "Gieß-Meister",
+      description: "Gieße deine Pflanzen 10 Mal.",
+      xp_reward: 300,
+      icon: "mdi-water",
+    },
+    {
+      name: "Dünger-König",
+      description: "Dünge deine Pflanzen 5 Mal.",
+      xp_reward: 400,
+      icon: "mdi-flask-outline",
+    },
+    {
+      name: "Perfektionist",
+      description: "Bringe eine Pflanze auf Level 10.",
+      xp_reward: 1500,
+      icon: "mdi-star-circle",
+    },
+    {
+      name: "Legende",
+      description: "Erreiche Level 10.",
+      xp_reward: 2500,
+      icon: "mdi-crown",
+    },
   ];
 
   for (const ach of achievements) {
@@ -88,6 +118,21 @@ async function main() {
       xp_reward: 70,
       type: "PRUNE",
       target: 1,
+    },
+    // Meta-Quests
+    {
+      name: "Gieß-Marathon",
+      description: "Gieße 10 Mal.",
+      xp_reward: 300,
+      type: "WATER",
+      target: 10,
+    },
+    {
+      name: "Dünger-Profi",
+      description: "Dünge 5 Mal.",
+      xp_reward: 200,
+      type: "FERTILIZE",
+      target: 5,
     },
   ];
 

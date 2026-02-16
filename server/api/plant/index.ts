@@ -1,4 +1,5 @@
 import { prisma } from "~~/lib/prisma";
+import { getUserId } from "~~/server/utils/auth";
 
 export default defineEventHandler(async (event) => {
   const method = event.method;
@@ -56,7 +57,7 @@ export default defineEventHandler(async (event) => {
       // Track action for XP
       try {
         const { trackAction } = await import("~~/server/utils/xp");
-        await trackAction(1, "ADD_PLANT", newPlant.id);
+        await trackAction(getUserId(event), "ADD_PLANT", newPlant.id);
       } catch (e) {
         console.error("Error tracking ADD_PLANT action", e);
       }

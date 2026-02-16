@@ -92,15 +92,21 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
 import { useFormat } from "~/composables/useFormat";
 
 const { formatDate } = useFormat();
+
+const { data: authUser } = await useFetch("/api/auth/me");
+const userId = computed(() => authUser.value?.id || 1);
 
 const {
   data: achievements,
   pending,
   error,
-} = await useFetch("/api/achievements");
+} = await useFetch("/api/achievements", {
+  query: { userId },
+});
 
 const isEarned = (ach: any) => {
   return ach.users && ach.users.length > 0;

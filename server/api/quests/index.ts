@@ -1,8 +1,10 @@
 import { prisma } from "~~/lib/prisma";
+import { getUserId } from "~~/server/utils/auth";
 
-export default defineEventHandler(async () => {
+export default defineEventHandler(async (event) => {
+  const userId = getUserId(event);
   return await prisma.userQuest.findMany({
-    where: { userId: 1 },
+    where: { userId },
     include: {
       quest: true,
     },

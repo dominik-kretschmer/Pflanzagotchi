@@ -1,4 +1,5 @@
 import { prisma } from "~~/lib/prisma";
+import { getUserId } from "~~/server/utils/auth";
 
 export default defineEventHandler(async (event) => {
   const idParam = getRouterParam(event, "id");
@@ -31,7 +32,7 @@ export default defineEventHandler(async (event) => {
       // Track action for XP (viewing sensors/detail)
       try {
         const { trackAction } = await import("~~/server/utils/xp");
-        await trackAction(1, "SENSORS", id);
+        await trackAction(getUserId(event), "SENSORS", id);
       } catch (e) {
         console.error("Error tracking SENSORS action", e);
       }
@@ -76,14 +77,15 @@ export default defineEventHandler(async (event) => {
       // Track actions for XP
       try {
         const { trackAction } = await import("~~/server/utils/xp");
+        const userId = getUserId(event);
         if (body.last_water) {
-          await trackAction(1, "WATER", id);
+          await trackAction(userId, "WATER", id);
         }
         if (body.last_fertilized) {
-          await trackAction(1, "FERTILIZE", id);
+          await trackAction(userId, "FERTILIZE", id);
         }
         if (body.last_pruning) {
-          await trackAction(1, "PRUNE", id);
+          await trackAction(userId, "PRUNE", id);
         }
       } catch (e) {
         console.error("Error tracking WATER/FERTILIZE action", e);

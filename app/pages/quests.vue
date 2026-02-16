@@ -1,3 +1,30 @@
+<script setup lang="ts">
+import { computed } from "vue";
+
+const { data: authUser } = await useFetch("/api/auth/me");
+const userId = computed(() => authUser.value?.id);
+
+const {
+  data: quests,
+  pending,
+  error,
+} = await useFetch("/api/quests", {
+  query: { userId },
+});
+console.log(quests );
+const getQuestIcon = (type: string) => {
+  switch (type) {
+    case "WATER":
+      return "mdi-water";
+    case "FERTILIZE":
+      return "mdi-bottle-wine";
+    case "SENSORS":
+      return "mdi-chart-bell-curve-cumulative";
+    default:
+      return "mdi-star";
+  }
+};
+</script>
 <template>
   <v-container class="py-10">
     <v-row class="mb-6" align="center">
@@ -95,19 +122,3 @@
   </v-container>
 </template>
 
-<script setup lang="ts">
-const { data: quests, pending, error } = await useFetch("/api/quests");
-
-const getQuestIcon = (type: string) => {
-  switch (type) {
-    case "WATER":
-      return "mdi-water";
-    case "FERTILIZE":
-      return "mdi-bottle-wine"; // Or something better for fertilizer
-    case "SENSORS":
-      return "mdi-chart-bell-curve-cumulative";
-    default:
-      return "mdi-star";
-  }
-};
-</script>

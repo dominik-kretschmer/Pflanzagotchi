@@ -1,4 +1,5 @@
 import { trackAction } from "~~/server/utils/xp";
+import { getUserId } from "~~/server/utils/auth";
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
@@ -11,6 +12,5 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  // Always use user 1
-  return await trackAction(1, type);
+  return await trackAction(getUserId(event), type);
 });

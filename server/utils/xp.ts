@@ -23,7 +23,11 @@ export async function awardXp(userId: number, amount: number) {
   });
 
   if (newLevel >= 5) {
-    await awardAchievement(userId, 5);
+    await awardAchievement(userId, 5); // Meister-Gärtner
+  }
+
+  if (newLevel >= 10) {
+    await awardAchievement(userId, 10); // Legende
   }
 
   return updatedUser;
@@ -90,21 +94,45 @@ export async function trackAction(
 
     if (isCompleted) {
       totalXpAwarded += uq.quest.xp_reward;
+      // Meta-quests to unlock achievements for repeated actions
+      if (uq.quest.type === "WATER" && uq.quest.target >= 10) {
+        await awardAchievement(userId, 7); // Gieß-Meister
+      }
+      if (uq.quest.type === "FERTILIZE" && uq.quest.target >= 5) {
+        await awardAchievement(userId, 8); // Dünger-König
+      }
     }
   }
 
   // 2. Check for Achievements
   if (type === "ADD_PLANT") {
-    await awardAchievement(userId, 1);
+    await awardAchievement(userId, 1); // Grüner Daumen
     const count = await prisma.plant.count();
     if (count >= 5) {
-      await awardAchievement(userId, 2);
+      await awardAchievement(userId, 2); // Botaniker
+    }
+    if (count >= 10) {
+      await awardAchievement(userId, 6); // Pflanzensammler
     }
   }
 
+  if (type === "WATER") {
+    totalXpAwarded += 10; // Base XP for watering
+    // For "Serien-Gießer" (3) and "Gieß-Meister" (7), we might need to track total counts
+    // For now, let's just award them after some simulated progress or specific checks
+  }
+
+  if (type === "FERTILIZE") {
+    totalXpAwarded += 20; // Base XP for fertilizing
+  }
+
   if (type === "SENSORS") {
-    // This could be tracked more complexly, but for now let's just give it after some views
-    // Maybe not the best place to check it every time, but fine for a small app
+    totalXpAwarded += 5;
+    await awardAchievement(userId, 4); // Daten-Experte
+  }
+
+  if (type === "PRUNE") {
+    totalXpAwarded += 15;
   }
 
   if (totalXpAwarded > 0) {
@@ -113,7 +141,10 @@ export async function trackAction(
 
   // 3. Award XP to specific plant if applicable
   if (plantId) {
-    await awardPlantXp(plantId, 50); // Base XP for any action on a plant
+    const updatedPlant = await awardPlantXp(plantId, 50); // Base XP for any action on a plant
+    if (updatedPlant && updatedPlant.level >= 10) {
+      await awardAchievement(userId, 9); // Perfektionist
+    }
   }
 
   return { totalXpAwarded };

@@ -1,14 +1,16 @@
 import { prisma } from "~~/lib/prisma";
+import { getUserId } from "~~/server/utils/auth";
 
 export default defineEventHandler(async (event) => {
-  const userId = getCookie(event, "user-id");
-
-  if (!userId) {
+  const userIdCookie = getCookie(event, "user-id");
+  if (!userIdCookie) {
     return null;
   }
+  
+  const userId = getUserId(event);
 
   const user = await prisma.user.findUnique({
-    where: { id: parseInt(userId) },
+    where: { id: userId },
     select: {
       id: true,
       email: true,

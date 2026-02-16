@@ -13,3 +13,8 @@ export function verifyPassword(password: string, hash: string): boolean {
   const keyBuffer = Buffer.from(key, "hex");
   return timingSafeEqual(derivedKey, keyBuffer);
 }
+
+export function getUserId(event: any): number {
+  const userIdCookie = getCookie(event, "user-id");
+  return userIdCookie ? parseInt(userIdCookie) : 1;
+}
