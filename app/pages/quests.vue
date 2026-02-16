@@ -48,11 +48,9 @@ const getQuestIcon = (type: string) => {
         <v-skeleton-loader type="list-item-two-line" />
       </v-col>
     </v-row>
-
     <v-alert v-else-if="error" type="error" variant="tonal" class="mb-6">
       Fehler beim Laden der Quests: {{ error.message }}
     </v-alert>
-
     <v-row v-else>
       <v-col v-for="uq in quests" :key="uq.id" cols="12">
         <v-card
@@ -86,7 +84,6 @@ const getQuestIcon = (type: string) => {
                 </v-chip>
               </div>
               <div class="text-body-2 mb-3">{{ uq.quest.description }}</div>
-
               <div class="d-flex align-center ga-4">
                 <v-progress-linear
                   :model-value="(uq.currentValue / uq.quest.target) * 100"
@@ -111,7 +108,6 @@ const getQuestIcon = (type: string) => {
         </v-card>
       </v-col>
     </v-row>
-
     <v-row v-if="!pending && !quests?.length">
       <v-col cols="12">
         <v-alert type="info" variant="tonal">

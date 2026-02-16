@@ -4,9 +4,12 @@ import { getUserId } from "~~/server/utils/auth";
 export default defineEventHandler(async (event) => {
   const method = event.method;
 
+  const userId = getUserId(event);
+
   if (method === "GET") {
     try {
       return await prisma.plant.findMany({
+        where: { userId },
         include: {
           sensorData: true,
         },
@@ -51,7 +54,10 @@ export default defineEventHandler(async (event) => {
       }
 
       const newPlant = await prisma.plant.create({
-        data,
+        data: {
+          ...data,
+          userId,
+        },
       });
 
       // Track action for XP

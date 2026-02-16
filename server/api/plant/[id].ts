@@ -15,8 +15,8 @@ export default defineEventHandler(async (event) => {
 
   try {
     if (method === "GET") {
-      const plant = await prisma.plant.findUnique({
-        where: { id },
+      const plant = await prisma.plant.findFirst({
+        where: { id, userId: getUserId(event) },
         include: {
           sensorData: true,
         },
@@ -69,10 +69,17 @@ export default defineEventHandler(async (event) => {
         }
       }
 
-      const updatedPlant = await prisma.plant.update({
-        where: { id },
+      const updatedPlant = await prisma.plant.updateMany({
+        where: { id, userId: getUserId(event) },
         data,
       });
+
+      if (updatedPlant.count === 0) {
+        throw createError({
+          statusCode: 404,
+          statusMessage: "Plant not found or not authorized",
+        });
+      }
 
       // Track actions for XP
       try {
@@ -95,9 +102,17 @@ export default defineEventHandler(async (event) => {
     }
 
     if (method === "DELETE") {
-      return await prisma.plant.delete({
-        where: { id },
+      const deleted = await prisma.plant.deleteMany({
+        where: { id, userId: getUserId(event) },
       });
+
+      if (deleted.count === 0) {
+        throw createError({
+          statusCode: 404,
+          statusMessage: "Plant not found or not authorized",
+        });
+      }
+      return deleted;
     }
   } catch (err) {
     if (err.code === "P2025") {
