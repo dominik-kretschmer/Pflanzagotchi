@@ -145,21 +145,6 @@ async function main() {
         ...quest,
       },
     });
-
-    // Link to user if not already linked
-    await prisma.userQuest.upsert({
-      where: {
-        id: q.id, // Using same ID for simplicity in this single-user app
-      },
-      update: {},
-      create: {
-        id: q.id,
-        userId: user.id,
-        questId: q.id,
-        currentValue: 0,
-        isCompleted: false,
-      },
-    });
   }
   console.log("Daily Quests seeded.");
 }

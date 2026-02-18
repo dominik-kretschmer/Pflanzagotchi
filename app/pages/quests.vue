@@ -11,7 +11,6 @@ const {
 } = await useFetch("/api/quests", {
   query: { userId },
 });
-console.log(quests );
 const getQuestIcon = (type: string) => {
   switch (type) {
     case "WATER":
@@ -117,4 +116,3 @@ const getQuestIcon = (type: string) => {
     </v-row>
   </v-container>
 </template>
-

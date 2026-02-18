@@ -1,12 +1,7 @@
-import { prisma } from "~~/lib/prisma";
 import { getUserId } from "~~/server/utils/auth";
+import { ensureDailyQuests } from "~~/server/utils/quests";
 
 export default defineEventHandler(async (event) => {
   const userId = getUserId(event);
-  return await prisma.userQuest.findMany({
-    where: { userId },
-    include: {
-      quest: true,
-    },
-  });
+  return await ensureDailyQuests(userId);
 });

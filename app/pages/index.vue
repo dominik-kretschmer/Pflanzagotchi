@@ -10,21 +10,20 @@ import PlantCard from "~/components/plantCard.vue";
 
 const { fetchPlants } = usePlants();
 const { numeric, average } = usePlantUtils();
+const userId = useCookie("user-id");
 
 const { data, pending, error } = await useAsyncData<PlantDTO[]>(
-  "plants-overview",
+  `plants-overview-${userId.value}`,
   () => fetchPlants(),
+  { watch: [userId] },
 );
 
 const plants = computed(() => data.value ?? []);
-
 const search = ref("");
 const locationFilter = ref<string | null>(null);
 const typeFilter = ref<string | null>(null);
 const sortBy = ref<"name" | "date" | "location">("name");
-
 const plantCount = computed(() => plants.value.length);
-
 const avgSun = computed(() =>
   average(plants.value.map((p) => numeric(p.pref_sun))),
 );
@@ -167,11 +166,3 @@ const filteredPlants = computed(() => {
     </template>
   </v-container>
 </template>
-
-<style scoped>
-.add-plant-card {
-  height: 601px;
-  border-style: dashed;
-  cursor: pointer;
-}
-</style>

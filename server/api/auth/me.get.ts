@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
   if (!userIdCookie) {
     return null;
   }
-  
+
   const userId = getUserId(event);
 
   const user = await prisma.user.findUnique({

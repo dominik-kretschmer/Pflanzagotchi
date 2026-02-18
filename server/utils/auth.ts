@@ -16,5 +16,12 @@ export function verifyPassword(password: string, hash: string): boolean {
 
 export function getUserId(event: any): number {
   const userIdCookie = getCookie(event, "user-id");
-  return userIdCookie ? parseInt(userIdCookie) : 1;
+  if (!userIdCookie) {
+    throw createError({ statusCode: 401, statusMessage: "Unauthorized" });
+  }
+  const id = parseInt(userIdCookie);
+  if (isNaN(id)) {
+    throw createError({ statusCode: 401, statusMessage: "Unauthorized" });
+  }
+  return id;
 }

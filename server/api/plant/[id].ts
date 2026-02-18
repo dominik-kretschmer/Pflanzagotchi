@@ -13,10 +13,13 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  // Ensure authentication error (401) is not swallowed by try/catch below
+  const userId = getUserId(event);
+
   try {
     if (method === "GET") {
       const plant = await prisma.plant.findFirst({
-        where: { id, userId: getUserId(event) },
+        where: { id, userId },
         include: {
           sensorData: true,
         },
@@ -70,7 +73,7 @@ export default defineEventHandler(async (event) => {
       }
 
       const updatedPlant = await prisma.plant.updateMany({
-        where: { id, userId: getUserId(event) },
+        where: { id, userId },
         data,
       });
 
@@ -103,7 +106,7 @@ export default defineEventHandler(async (event) => {
 
     if (method === "DELETE") {
       const deleted = await prisma.plant.deleteMany({
-        where: { id, userId: getUserId(event) },
+        where: { id, userId },
       });
 
       if (deleted.count === 0) {

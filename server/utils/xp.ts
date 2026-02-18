@@ -1,4 +1,5 @@
 import { prisma } from "~~/lib/prisma";
+import { ensureDailyQuests } from "./quests";
 
 export const XP_PER_LEVEL = 1000;
 
@@ -64,11 +65,17 @@ export async function trackAction(
   type: string,
   plantId?: number,
 ) {
-  // 1. Find relevant quests
+  // 0. Ensure quests are initialized for today
+  await ensureDailyQuests(userId);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // 1. Find relevant quests for TODAY
   const userQuests = await prisma.userQuest.findMany({
     where: {
       userId,
       isCompleted: false,
+      date: today,
       quest: {
         type: type,
       },
@@ -107,7 +114,7 @@ export async function trackAction(
   // 2. Check for Achievements
   if (type === "ADD_PLANT") {
     await awardAchievement(userId, 1); // Grüner Daumen
-    const count = await prisma.plant.count();
+    const count = await prisma.plant.count({ where: { userId } });
     if (count >= 5) {
       await awardAchievement(userId, 2); // Botaniker
     }
