@@ -13,7 +13,6 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  // Ensure authentication error (401) is not swallowed by try/catch below
   const userId = getUserId(event);
 
   try {

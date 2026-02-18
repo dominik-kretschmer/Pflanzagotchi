@@ -27,7 +27,6 @@ export default defineEventHandler(async (event) => {
     try {
       const body = await readBody(event);
 
-      // Map ISO strings to Date objects and Decimals for Prisma
       const dateFields = [
         "date_planted",
         "last_pruning",

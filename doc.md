@@ -1,296 +1,215 @@
-# Pflanzagotchi — Project Documentation
+# Pflanzagotchi — Projektdokumentation
 
-Last updated: 2026‑02‑09
+Zuletzt aktualisiert: 18.02.2026
 
-## Overview
+## Übersicht
 
-Pflanzagotchi is a Nuxt 4 (Vue 3) application to catalog household plants, visualize recent sensor readings, and enrich plant records with external botanical data from the Trefle API. It provides:
+Pflanzagotchi ist eine Nuxt 4 (Vue 3) Anwendung zur Katalogisierung von Zimmerpflanzen, zur Visualisierung aktueller Sensordaten und zur Anreicherung von Pflanzendaten mit externen botanischen Informationen der Trefle API. Die Anwendung bietet folgende Kernfunktionen:
 
-- An overview grid with search, filters, and sorting
-- Detailed plant pages with images, taxonomy, and curated facts (from Trefle)
-- A creation/editing workflow for local Plant records
-- Embedded sensor trend sparklines (temperature, air humidity, soil humidity)
-- A simple REST API (Nuxt server routes) backed by Prisma and PostgreSQL
-- **XP & Achievement System**: Earn XP by caring for your plants (Water, Fertilize, Prune) and complete daily quests and achievements.
-  - **Player Progression**: Overall level and XP for the user.
-  - **Plant Evolution**: Each plant has its own XP, Level, and Health status. Level up plants by interacting with them!
-- **Authentication System**: Login and Register pages with password hashing (scrypt) and session management via cookies.
+- **Pflanzen-Management**: Übersichtsgitter mit Suche, Filtern und Sortierung für die eigenen Pflanzen.
+- **Detailansichten**: Detaillierte Seiten pro Pflanze mit Bildern, Taxonomie und kuratierten Fakten (via Trefle).
+- **Interaktive Pflege**: Workflows zum Gießen, Düngen und Zurückschneiden von Pflanzen.
+- **Sensordaten**: Eingebettete Trend-Graphen für Temperatur, Luftfeuchtigkeit und Bodenfeuchtigkeit.
+- **XP & Achievement-System**: Nutzer sammeln XP durch die Pflege ihrer Pflanzen und können tägliche Quests sowie Erfolge (Achievements) abschließen.
+  - **Spieler-Fortschritt**: Globales Level und XP für den Benutzer.
+  - **Pflanzen-Evolution**: Jede Pflanze hat eigene XP, Level und einen Gesundheitsstatus.
+- **Multi-User & Authentifizierung**: Registrierung und Login-System mit Passwort-Hashing (scrypt) und Sitzungsverwaltung via Cookies. Daten sind nutzerspezifisch getrennt.
 
-The app uses Vuetify 3 for UI components and Prisma as ORM, with Docker Compose for a local Postgres database.
+Die App nutzt Vuetify 3 für die UI-Komponenten, Prisma als ORM und PostgreSQL (via Docker Compose) als Datenbank.
 
-## Tech Stack
+## Tech-Stack
 
-- Framework: Nuxt ^4.1 (Vue 3)
-- UI: Vuetify ^3.10, Material Design Icons (@mdi/font)
-- Language/Build: TypeScript, Vite (Nuxt’s Vite integration)
-- Lint/Format: ESLint, Prettier
-- Data layer: Prisma ^7 with @prisma/adapter-pg → PostgreSQL 15
-- External data: Trefle API (proxied through Nuxt server endpoints)
+- **Framework**: Nuxt ^4.1 (Vue 3)
+- **UI**: Vuetify ^3.10, Material Design Icons (@mdi/font)
+- **Sprache/Build**: TypeScript, Vite
+- **Lint/Format**: ESLint, Prettier
+- **Datenschicht**: Prisma ^7 mit @prisma/adapter-pg → PostgreSQL 15
+- **Externe Daten**: Trefle API (geproxied über Nuxt Server-Endpoints)
 
-## Project Layout
+## Projektstruktur
 
-Root highlights:
+Wichtige Ordner und Dateien im Root:
 
-- app/ … Application code (pages, components, composables, plugins, assets)
-- server/ … Nuxt server routes (API) and utilities
-- prisma/ … Prisma schema and migrations
-- generated/ … Prisma Client output (configured via schema)
-- lib/ … Prisma client bootstrap
-- public/ … Static files
-- docker-compose.yml … Local Postgres service
-- nuxt.config.ts … Nuxt configuration (runtimeConfig, Vite/Vuetify integration)
+- `app/`: Frontend-Code (Seiten, Komponenten, Composables, Plugins).
+- `server/`: Nuxt Server-Routes (API) und Utilities.
+- `prisma/`: Prisma-Schema und Seed-Skripte.
+- `generated/`: Output des Prisma Clients.
+- `lib/`: Prisma-Client Bootstrap.
+- `public/`: Statische Dateien.
+- `docker-compose.yml`: Konfiguration für die lokale Postgres-Datenbank.
+- `nuxt.config.ts`: Nuxt-Konfiguration (RuntimeConfig, Vite/Vuetify Integration).
 
-App subfolders:
+### Frontend (app/)
 
-- app/pages
-  - index.vue … Overview grid of plants from local DB
-  - CreatePlantForm.vue … Form to create a local Plant
-  - Plants/[slug].vue … Detailed view for a Trefle plant (slug/id)
-  - Plants/edit/[id].vue … Edit (local Plant)
-  - search/Plant.vue … Trefle search UI
-- app/components (selection)
-  - plantCard.vue, overViewHeader.vue, searchFilterBar.vue
-  - sensorDataGraph.vue … Vuetify sparklines for recent readings
-  - growthLoreCard.vue, plantHeroCard.vue, StatusBars.vue, etc.
-- app/composables
-  - usePlants.ts, useSensorData.ts, useApi.ts, useFormat.ts, usePlantUtils.ts
-- app/plugins
-  - vuetify.ts … Registers Vuetify and MDI icon set
-- app/types
-  - Plant.ts, SensorData.ts … DTOs, helper interfaces
+- **Seiten (app/pages/)**:
+  - `index.vue`: Übersicht der eigenen Pflanzen.
+  - `login.vue` / `register.vue`: Authentifizierungsseiten.
+  - `quests.vue`: Übersicht der täglichen Aufgaben.
+  - `achievements.vue`: Übersicht der freigeschalteten Erfolge.
+  - `Plant[id].vue`: Detailansicht einer lokalen Pflanze (inkl. Aktionen).
+  - `Plants/[slug].vue`: Detailansicht einer Pflanze aus der Trefle-Datenbank.
+  - `CreatePlantForm.vue`: Formular zum Anlegen einer neuen Pflanze.
+  - `search/Plant.vue`: Suche in der Trefle-API.
+- **Komponenten (app/components/)**:
+  - `plantCard.vue`: Karteikarte in der Übersicht.
+  - `sensorDataGraph.vue`: Sparklines für Sensordaten.
+  - `StatusBars.vue`, `GrowthLoreCard.vue`, etc.: Detail-Komponenten.
+- **Composables (app/composables/)**:
+  - `usePlants.ts`: API-Calls für lokale Pflanzen (mit Cookie-Forwarding für SSR).
+  - `useApi.ts`: Kommunikation mit der Trefle-Proxy-API.
 
-Server subfolders:
+### Backend (server/)
 
-- server/api
-  - plant/ … REST for local Plant
-  - sensorData/ … REST for local SensorData
-  - trefle/ … Proxy endpoints for Trefle (plants/species/genus)
-- server/utils/plantApi.ts … Builds Trefle URLs with runtime config and token
+- **API-Endpunkte (server/api/)**:
+  - `auth/`: Login, Logout, Registrierung und Session-Info.
+  - `plant/`: REST-API für lokale Pflanzen.
+  - `sensorData/`: REST-API für lokale Sensordaten.
+  - `quests/`: Abruf der täglichen Quests.
+  - `achievements/`: Abruf der Erfolge.
+  - `trefle/`: Proxy für externe Trefle-Anfragen.
+- **Utilities (server/utils/)**:
+  - `xp.ts`: Zentrale Logik für XP-Vergabe, Level-Aufstiege und Achievements.
+  - `quests.ts`: Initialisierung und Management täglicher Quests.
+  - `auth.ts`: Passwort-Hashing und User-Identifizierung aus Cookies.
 
-## Runtime Configuration
+## Datenbank & ORM
 
-Defined in nuxt.config.ts as runtimeConfig:
+Das Prisma-Schema (`prisma/schema.prisma`) definiert folgende Hauptmodelle:
 
-- apiBase: Base URL of the Trefle API (e.g., https://trefle.io/api/v1)
-- apiKey: API token for Trefle
-- public: {} (reserved for future public config)
+- **Plant (Tabelle: PLANT)**:
+  - Metadaten (Name, Typ, Ort, Botanischer Name).
+  - Zeitstempel (Gepflanzt, Gießen, Düngen, Schneiden).
+  - Progression (XP, Level, Health).
+  - Relation zu User und SensorData.
+- **User (Tabelle: USER)**:
+  - Login-Daten (Email, Passwort-Hash).
+  - Globaler Fortschritt (XP, Level).
+- **SensorData (Tabelle: SENSOR_DATA)**:
+  - Messwerte (Temp, Feuchtigkeit, CO2, Licht).
+- **Achievement & UserAchievement**:
+  - Definition von Erfolgen und deren Zuweisung zu Nutzern.
+- **DailyQuest & UserQuest**:
+  - Aufgaben-Vorlagen und nutzerspezifische Tages-Quests.
+  - `UserQuest` besitzt einen Unique-Constraint auf `[userId, questId, date]`.
 
-How to set values:
+## API-Referenz
 
-- Nuxt loads runtime config from environment variables. Define:
-  - NUXT_API_BASE=https://trefle.io/api/v1
-  - NUXT_API_KEY=your_trefle_token
+### Lokale Daten (Postgres)
 
-These are consumed by server/utils/plantApi.ts to proxy and sign outbound calls.
+- `GET /api/plant`: Liste der Pflanzen des aktuellen Users.
+- `POST /api/plant`: Erstellt eine neue Pflanze.
+- `GET /api/plant/:id`: Details einer spezifischen Pflanze (inkl. Sensordaten).
+- `PUT /api/plant/:id`: Update von Feldern (löst ggf. XP-Tracking aus).
+- `DELETE /api/plant/:id`: Löscht eine Pflanze.
+- `GET /api/quests`: Liefert die täglichen Quests des Users (initialisiert sie ggf. für den heutigen Tag).
+- `GET /api/achievements`: Liefert alle Achievements inkl. Status des Users.
 
-## Database & ORM
+### Sensordaten
 
-Prisma schema (prisma/schema.prisma) maps two core models onto uppercase tables (via @@map):
+- `GET /api/sensorData`: Liste aller Sensordaten.
+- `POST /api/sensorData`: Erstellt einen neuen Datensatz (benötigt `plant_id`).
+- `GET /api/sensorData/:id`: Details eines spezifischen Messwerts.
+- `DELETE /api/sensorData/:id`: Löscht einen Messwert.
 
-- Plant (table: PLANT)
-  - id (Int, PK, autoincrement)
-  - custom_name, name, type, location (String)
-  - date_planted, last_pruning, last_water, last_fertilized (Date)
-  - xp, level, health (Int) … Plant-specific progression
-  - gen_data (Json) … images, growth, sources
-  - botanical_name (String)
-  - pref_sun, pref_air_humidity, pref_soil_humidity (Decimal)
-  - sensorData: SensorData[] (relation)
+### Authentifizierung
 
-- SensorData (table: SENSOR_DATA)
-  - sensor_data_id (Int, PK, autoincrement)
-  - plant_id (Int, FK → PLANT.id)
-  - timestamp (Timestamp(0))
-  - temperature, humidity_air, light_intensity, humidity_soil, co2_amount (Decimal[65,2])
-  - plant: Plant (relation)
+- `POST /api/auth/register`: Erstellt einen neuen Account.
+- `POST /api/auth/login`: Authentifiziert den User und setzt ein `user-id` Cookie.
+- `POST /api/auth/logout`: Löscht das Session-Cookie.
+- `GET /api/auth/me`: Liefert Informationen zum aktuell angemeldeten User.
 
-- User (table: USER)
-  - id, email, password, name, xp, level
-- Achievement (table: ACHIEVEMENT)
-  - id, name, description, xp_reward, icon
-- DailyQuest (table: DAILY_QUEST)
-  - id, name, description, xp_reward, type, target
+### Trefle Proxy
 
-Prisma Client is created with @prisma/adapter-pg in lib/prisma.ts using DATABASE_URL.
+- `GET /api/trefle/plant/search?q=<query>`: Sucht in der botanischen Datenbank.
+- `GET /api/trefle/plant/:idOrSlug`: Detaildaten einer Spezies.
 
-## API Reference (Nuxt Server Routes)
+## Setup & Entwicklung
 
-Base URL during dev: http://localhost:3000
-
-Local data (Postgres via Prisma):
-
-- GET /api/plant
-  - Returns all plants including related sensorData.
-- POST /api/plant
-  - Creates a new plant. The handler converts ISO date strings to Date and numeric strings to float for decimal fields.
-- GET /api/plant/:id
-  - Returns a single plant by ID, including sensorData.
-- PUT/PATCH /api/plant/:id
-  - Updates provided fields. Same date/decimal mapping as POST.
-- DELETE /api/plant/:id
-  - Deletes the plant.
-
-- GET /api/sensorData
-  - Returns all sensor data with attached plant.
-- POST /api/sensorData
-  - Creates a sensor data record (expects valid plant_id, timestamp and measurement fields).
-- GET /api/sensorData/:id
-  - Returns a single sensor row (by sensor_data_id) with plant.
-- PUT/PATCH /api/sensorData/:id
-  - Updates the row.
-- DELETE /api/sensorData/:id
-  - Deletes the row.
-
-External Trefle proxy (requires NUXT_API_BASE + NUXT_API_KEY):
-
-- GET /api/trefle/plant/search?q=<query>&...
-- GET /api/trefle/plant/:idOrSlug
-- GET /api/trefle/plant (pagination params supported)
-- GET /api/trefle/species, /api/trefle/species/search?q=...
-- GET /api/trefle/genus, /api/trefle/genus/:idOrSlug
-
-The proxy is implemented in server/utils/plantApi.ts (adds token and params).
-
-## Frontend Features & Flows
-
-- Overview (app/pages/index.vue)
-  - Fetches local plants via usePlants() and displays as PlantCard grid
-  - Search (text), filter (location, type), and sort (name, date, location)
-  - Shows aggregated preference averages (sun/air/soil humidity)
-  - Quick card to create a new plant (→ /CreatePlantForm)
-
-- Plant detail (app/pages/Plants/[slug].vue)
-  - Fetches a plant (by slug or id) from Trefle via useApi().getPlant
-  - Shows hero image, taxonomy, quick facts (edible, pH, light, humidity)
-  - Displays categorized image galleries and distribution chips
-
-- Search (app/pages/search/Plant.vue)
-  - Proxies Trefle’s /plants/search; shows cards with image + basic facts
-  - Navigates to Plants/[slug] (detailed Trefle page)
-
-- Create Plant (app/pages/CreatePlantForm.vue)
-  - Complex Vuetify-based form with validation rules
-  - Supports picking/deriving gen_data JSON from search defaults
-  - Sends POST to /api/plant; shows progress/disabled while submitting
-
-- Sensor trends (app/components/sensorDataGraph.vue)
-  - Renders sparkline charts for the latest N entries (default ~24)
-  - Displays min/max and time range labels for readings
-
-## Types & Data Contracts
-
-See app/types/Plant.ts (selection):
-
-- PlantDTO … shape used on the client (dates as ISO strings; decimals as number)
-- PlantGenData … image URLs, grouped images, growth info, sources
-- Trefle types: TreflePlant, TrefleSearchResponse, TreflePlantDetails
-
-Note: Server endpoints accept strings for dates/decimals and convert internally to Prisma-compatible Date/Decimal before persisting.
-
-## Setup & Development
-
-Prerequisites:
+### Voraussetzungen
 
 - Node.js 20+
-- Docker (for local Postgres) or an external PostgreSQL instance
-- Trefle API token (optional for local-only DB features; required for search/details)
+- Docker (für die lokale Datenbank)
+- Trefle API-Token (für Suche/Details)
 
-1. Configure environment
+### Installation
 
-- Create a .env in the project root for Docker and Prisma, for example:
+1. **Umgebung konfigurieren**:
+   Erstellen Sie eine `.env`-Datei im Root-Verzeichnis:
+   ```env
+   DATABASE_URL=postgresql://pflanzagotchi:devpassword@localhost:5432/pflanzagotchi
+   NUXT_API_BASE=https://trefle.io/api/v1
+   NUXT_API_KEY=dein_trefle_token
+   ```
 
-  POSTGRES_USER=pflanzagotchi
-  POSTGRES_PASSWORD=devpassword
-  POSTGRES_DB=pflanzagotchi
-  DATABASE_URL=postgresql://pflanzagotchi:devpassword@localhost:5432/pflanzagotchi
+2. **Datenbank starten**:
+   ```bash
+   docker compose up -d
+   ```
 
-- Add Nuxt runtime config variables (same .env or your shell env):
+3. **Prisma & Initialisierung**:
+   ```bash
+   npm install
+   npx prisma generate
+   npx prisma db push
+   npx prisma db seed
+   ```
 
-  NUXT_API_BASE=https://trefle.io/api/v1
-  NUXT_API_KEY=your_trefle_token
+4. **Anwendung starten**:
+   ```bash
+   npm run dev
+   ```
 
-2. Start Postgres
+## XP- & Level-Logik
 
-- docker compose up -d
+### Nutzer-Level
+- Nutzer erhalten XP für:
+  - Hinzufügen einer Pflanze: 100 XP (Achievement) + 50 XP (Quest).
+  - Gießen: 10 XP.
+  - Düngen: 20 XP.
+  - Sensoren prüfen: 5 XP.
+  - Zurückschneiden: 15 XP.
+- Ein Level-Up erfolgt alle 1000 XP.
 
-3. Generate client and run migrations
-
-- npx prisma generate
-- npx prisma migrate dev --name init
-
-4. Install and run the app
-
-- npm install
-- npm run dev
-
-Dev URLs:
-
-- Web app: http://localhost:3000
-- API routes (examples): http://localhost:3000/api/plant, /api/sensorData
-
-## Data Entry & Examples
-
-- Create a plant: POST /api/plant with JSON body like:
-
-  {
-  "custom_name": "Schreibtisch-Monstera",
-  "name": "Monstera",
-  "type": "Zimmerpflanze",
-  "location": "Büro",
-  "date_planted": "2025-12-01",
-  "last_pruning": "2026-01-10",
-  "last_water": "2026-01-24",
-  "last_fertilized": "2026-01-05",
-  "gen_data": {
-  "api_id": 12345,
-  "image_url": null,
-  "images": {},
-  "growth": {},
-  "sources": []
-  },
-  "botanical_name": "Monstera deliciosa",
-  "pref_sun": 5.0,
-  "pref_air_humidity": 60.0,
-  "pref_soil_humidity": 40.0
-  }
-
-- Add sensor data: POST /api/sensorData
-
-  {
-  "plant_id": 1,
-  "timestamp": "2026-01-24T08:00:00Z",
-  "temperature": 22.5,
-  "humidity_air": 55.2,
-  "light_intensity": 300.0,
-  "humidity_soil": 42.0,
-  "co2_amount": 410.0
-  }
+### Pflanzen-Level
+- Pflanzen erhalten pro Aktion 50 XP.
+- Ein Level-Up erfolgt alle 500 XP.
+- Regelmäßige Pflege erhöht die Gesundheit (`health`) der Pflanze (max. 100%).
 
 ## Styling & Theming
 
-- Vuetify is registered in app/plugins/vuetify.ts with default MDI icon set
-- Global/feature CSS resides in app/assets/css/plant.css and component-scoped styles
+- Vuetify wird in `app/plugins/vuetify.ts` mit dem Standard MDI-Icon-Set registriert.
+- Globale Stile befinden sich in `app/assets/css/plant.css`.
 
-## Quality & Tooling
+## Qualitätssicherung & Tooling
 
-- Lint: npm run lint (eslint . --fix)
-- Format: npm run format (prettier --write .)
+- **Linting**: `npm run lint` (eslint . --fix)
+- **Formatierung**: `npm run format` (prettier --write .)
 
-## Troubleshooting
+## Fehlerbehebung
 
-- Database connection: Ensure DATABASE_URL matches running Postgres; for Docker the host is localhost:5432 by default in this compose file.
-- Prisma issues: Re-run npx prisma generate after schema edits. For migration conflicts, use migrate dev in local development.
-- Trefle API errors: Confirm NUXT_API_BASE and NUXT_API_KEY. The server proxy always injects the token as the token query param.
-- CORS: Calls to Trefle are routed from the server (no browser CORS needed).
+- **Datenbank-Verbindung**: Stellen Sie sicher, dass `DATABASE_URL` mit der laufenden Postgres-Instanz übereinstimmt.
+- **Prisma-Probleme**: Führen Sie nach Schema-Änderungen `npx prisma generate` aus.
+- **SSR 401 Fehler**: Die Composables (z.B. `usePlants.ts`) müssen Cookies explizit weiterleiten, wenn sie auf dem Server ausgeführt werden.
+- **Trefle API-Fehler**: Überprüfen Sie `NUXT_API_BASE` und `NUXT_API_KEY`. Der Proxy hängt den Token automatisch an.
 
-## Roadmap (from gant.mmd)
+## Roadmap
 
-- Setup: Init milestone (2025‑10‑15)
-- UI: Docker Compose (DB), Cards, Styling + Statusbars
-- Prisma: Schema, connection, switch to Postgres
-- API/Features: Plant + SensorData APIs & composables; overview refactor; Trefle proxy + search; detail page with real DB data; stronger typing; create page fixes; graph axis polishing (2026‑01‑20)
-- Cleanup / Finish: Redesign, Growth data fixes, and final refactoring (2026‑01‑22); Project Documentation (2026‑02‑09)
+### Abgeschlossen (✓)
+- Grundlegende UI & Vuetify Integration.
+- Prisma & PostgreSQL Setup.
+- Trefle API Proxy & Integration.
+- Authentifizierung & Multi-User Support.
+- XP-, Quest- & Achievement-System.
+- Fehlerbehebung bei SSR (Cookie-Forwarding in Composables).
+- Daten-Isolation für mehrere Nutzer.
 
-## License
+### Geplant
+- Benachrichtigungen bei niedriger Bodenfeuchtigkeit.
+- Erweiterte Statistiken über das Pflanzenwachstum.
+- Foto-Upload für eigene Pflanzen.
+- Social Features: Vergleiche deinen Garten mit Freunden.
 
-Internal/student project; add a proper license file if open-sourcing.
+## Lizenz
+
+Internes Studienprojekt.
+
