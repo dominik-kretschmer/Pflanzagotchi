@@ -119,6 +119,10 @@
           </v-card>
           <BasisAttributeGrid :plant="plant" />
           <GrowthLoreCard :growth="plant.gen_data?.growth" />
+          <PlantImageUpload :plant-id="plant.id" @uploaded="onUploaded" />
+          <PlantImageGallery :plant-id="plant.id" :images="userImages || []" @refresh="onUploaded" />
+          <PlantStatisticsCard :stats="stats" />
+          <GrowthChartCard :history="history" />
           <SensorDataGraph :has-sensor-data="hasSensorData" :plant="plant" />
           <v-expansion-panels multiple>
             <v-expansion-panel v-if="allImages.length">
@@ -147,6 +151,10 @@ import galerieExpPanel from "@/components/galerieExpPanel.vue";
 import GrowthLoreCard from "@/components/growthLoreCard.vue";
 import BasisAttributeGrid from "@/components/basisAttributeGrid.vue";
 import PlantHeroCard from "@/components/plantHeroCard.vue";
+import PlantStatisticsCard from "@/components/PlantStatisticsCard.vue";
+import GrowthChartCard from "@/components/GrowthChartCard.vue";
+import PlantImageUpload from "@/components/PlantImageUpload.vue";
+import PlantImageGallery from "@/components/PlantImageGallery.vue";
 import type { PlantDTO } from "@/types/Plant";
 import type { SensorData } from "@/types/SensorData";
 
@@ -155,7 +163,8 @@ type PlantDetail = PlantDTO & {
 };
 
 const route = useRoute();
-const { fetchPlant, updatePlant } = usePlants();
+const { fetchPlant, updatePlant, fetchImages } = usePlants();
+const headers = useRequestHeaders(["cookie"]);
 
 const isWatering = ref(false);
 const isFertilizing = ref(false);
@@ -211,20 +220,54 @@ const { data, pending, error } = await useAsyncData<PlantDetail | null>(
   () => fetchPlant(Number(route.params.id)),
 );
 
+const { data: stats } = await useAsyncData<any>("plant-stats", () =>
+  $fetch(`/api/plant/${route.params.id}/statistics`, { headers }),
+);
+
+const { data: history } = await useAsyncData<any[]>("plant-history", () =>
+  $fetch(`/api/plant/${route.params.id}/growth-history`, { headers }),
+);
+
+const { data: userImages, refresh: refreshImages } = await useAsyncData<any[]>(
+  `plant-images-${route.params.id}`,
+  () => fetchImages(Number(route.params.id)),
+);
+
+const onUploaded = () => {
+  refreshImages();
+  // No need for window.location.reload() if we just want to update the gallery.
+  // But wait, the previous implementation was appending to gen_data.images.other.
+  // My new implementation uses a separate table.
+};
+
 const plant = computed(() => data.value!);
 const hasSensorData = computed(
   () => !!plant.value?.sensorData && plant.value.sensorData.length > 0,
 );
 
 const allImages = computed(() => {
-  const gd = plant.value?.gen_data;
-  if (!gd?.images) return [];
   const result: Array<{
     url: string;
     license?: string;
     author?: string;
-    category: keyof NonNullable<typeof gd.images>;
+    category: string;
   }> = [];
+
+  // Add user images
+  if (userImages.value) {
+    userImages.value.forEach((img) => {
+      result.push({
+        url: img.url,
+        category: "user",
+        author: "Du",
+        license: "Persönlich",
+      });
+    });
+  }
+
+  const gd = plant.value?.gen_data;
+  if (!gd?.images) return result;
+  
   const categories: (keyof NonNullable<typeof gd.images>)[] = [
     "habit",
     "leaf",

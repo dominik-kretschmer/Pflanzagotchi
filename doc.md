@@ -107,6 +107,9 @@ Das Prisma-Schema (`prisma/schema.prisma`) definiert folgende Hauptmodelle:
 - `GET /api/plant/:id`: Details einer spezifischen Pflanze (inkl. Sensordaten).
 - `PUT /api/plant/:id`: Update von Feldern.
 - `DELETE /api/plant/:id`: Löscht eine Pflanze.
+- `GET /api/plant/:id/images`: Liste der nutzerhochgeladenen Fotos.
+- `POST /api/plant/:id/images/upload`: Lädt ein neues Foto hoch (multipart/form-data).
+- `DELETE /api/plant/:id/images/:imageId`: Löscht ein Foto.
 - `POST /api/user/action`: Zentraler Endpunkt zum Triggern von Aktionen (Gießen, Düngen, etc.).
 - `GET /api/quests`: Liefert die täglichen Quests des Users.
 - `GET /api/achievements`: Liefert alle Achievements inkl. Status des Users.
@@ -114,6 +117,7 @@ Das Prisma-Schema (`prisma/schema.prisma`) definiert folgende Hauptmodelle:
 ### Interne Business-Logik (API-Driven)
 
 Um SOLID-Prinzipien einzuhalten, werden Progressionen über interne API-Calls abgewickelt:
+
 - `POST /api/user/xp`: Aktualisiert User-XP und Level.
 - `POST /api/plant/:id/xp`: Aktualisiert Pflanzen-XP, Level und berechnet Gesundheit.
 - `POST /api/achievements/award`: Verleiht einem Nutzer ein Achievement.
@@ -232,12 +236,12 @@ Das gesamte Balancing ist über die `.env`-Datei konfigurierbar.
 - **Dynamisches Gesundheitssystem (Zeit-basierter Verfall)**.
 - **API-Driven Architecture** (Interne Progression via $fetch).
 - **Zentrale Konfiguration** via `.env` und RuntimeConfig.
+- **Erweiterte Statistiken & Wachstums-Historie** (ApexCharts).
+- **Foto-Upload & Bildverwaltung** (Separates Speichermodell).
 
 ### Geplant
 
 - Benachrichtigungen bei niedriger Bodenfeuchtigkeit.
-- Erweiterte Statistiken über das Pflanzenwachstum.
-- Foto-Upload für eigene Pflanzen.
 - Social Features: Vergleiche deinen Garten mit Freunden.
 
 ## Lizenz
