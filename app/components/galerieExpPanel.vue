@@ -111,6 +111,8 @@ const categoryLabel = (cat: string) => {
       return "Früchte";
     case "bark":
       return "Rinde";
+    case "user":
+      return "Deine Fotos";
     case "other":
       return "Weitere";
     default:
