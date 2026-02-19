@@ -133,7 +133,8 @@ const formatTime = (isoString: string) => {
 
 const recentData = computed<SensorData[]>(() => {
   if (!props.plant?.sensorData?.length) return [];
-  const maxPoints = 24;
+  const config = useRuntimeConfig();
+  const maxPoints = config.public.maxSensorPoints || 24;
   const data = props.plant.sensorData;
   return data.slice(-maxPoints);
 });

@@ -1,5 +1,7 @@
 import { prisma } from "~~/lib/prisma";
 import { getUserId } from "~~/server/utils/auth";
+import { calculateCurrentHealth } from "~~/server/utils/health";
+import { parsePlantData } from "~~/server/utils/transformers";
 
 export default defineEventHandler(async (event) => {
   const idParam = getRouterParam(event, "id");
@@ -31,76 +33,79 @@ export default defineEventHandler(async (event) => {
         });
       }
 
-      // Track action for XP (viewing sensors/detail)
+      // Track action for XP via API call
       try {
-        const { trackAction } = await import("~~/server/utils/xp");
-        await trackAction(getUserId(event), "SENSORS", id);
+        const fetcher = useRequestFetch(event);
+        const actionResult: any = await fetcher("/api/user/action", {
+          method: "POST",
+          body: { type: "SENSORS", plantId: id },
+        });
+        if (actionResult?.updatedPlant) {
+          return {
+            ...actionResult.updatedPlant,
+            sensorData: plant.sensorData,
+          };
+        }
       } catch (e) {
         console.error("Error tracking SENSORS action", e);
       }
 
-      return plant;
+      return {
+        ...plant,
+        health: calculateCurrentHealth(plant),
+      };
     }
 
     if (method === "PUT" || method === "PATCH") {
       const body = await readBody(event);
+      const data = parsePlantData(body);
 
-      // Map ISO strings to Date objects and Decimals for Prisma
-      const dateFields = [
-        "date_planted",
-        "last_pruning",
-        "last_water",
-        "last_fertilized",
-      ];
-      const decimalFields = [
-        "pref_sun",
-        "pref_air_humidity",
-        "pref_soil_humidity",
-      ];
-      const data: any = { ...body };
-
-      for (const field of dateFields) {
-        if (data[field]) {
-          data[field] = new Date(data[field]);
-        }
-      }
-
-      for (const field of decimalFields) {
-        if (data[field] !== undefined && data[field] !== null) {
-          data[field] = parseFloat(data[field]);
-        }
-      }
-
-      const updatedPlant = await prisma.plant.updateMany({
+      const updateResult = await prisma.plant.updateMany({
         where: { id, userId },
         data,
       });
 
-      if (updatedPlant.count === 0) {
+      if (updateResult.count === 0) {
         throw createError({
           statusCode: 404,
           statusMessage: "Plant not found or not authorized",
         });
       }
 
-      // Track actions for XP
+      // Track actions for XP based on what was updated
+      let finalPlant = await prisma.plant.findFirst({
+        where: { id, userId },
+        include: { sensorData: true },
+      });
+
+      const fetcher = useRequestFetch(event);
       try {
-        const { trackAction } = await import("~~/server/utils/xp");
-        const userId = getUserId(event);
         if (body.last_water) {
-          await trackAction(userId, "WATER", id);
+          const actionResult: any = await fetcher("/api/user/action", {
+            method: "POST",
+            body: { type: "WATER", plantId: id },
+          });
+          if (actionResult?.updatedPlant) finalPlant = { ...actionResult.updatedPlant, sensorData: finalPlant?.sensorData };
         }
         if (body.last_fertilized) {
-          await trackAction(userId, "FERTILIZE", id);
+          const actionResult: any = await fetcher("/api/user/action", {
+            method: "POST",
+            body: { type: "FERTILIZE", plantId: id },
+          });
+          if (actionResult?.updatedPlant) finalPlant = { ...actionResult.updatedPlant, sensorData: finalPlant?.sensorData };
         }
         if (body.last_pruning) {
-          await trackAction(userId, "PRUNE", id);
+          const actionResult: any = await fetcher("/api/user/action", {
+            method: "POST",
+            body: { type: "PRUNE", plantId: id },
+          });
+          if (actionResult?.updatedPlant) finalPlant = { ...actionResult.updatedPlant, sensorData: finalPlant?.sensorData };
         }
       } catch (e) {
-        console.error("Error tracking WATER/FERTILIZE action", e);
+        console.error("Error tracking actions", e);
       }
 
-      return updatedPlant;
+      return finalPlant;
     }
 
     if (method === "DELETE") {

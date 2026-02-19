@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { useRouter } from "vue-router";
+import { ref, onMounted } from "vue";
+import { useRouter, useRoute } from "vue-router";
 
 const router = useRouter();
-const isLogin = ref(true);
+const route = useRoute();
+const isLogin = ref(route.query.mode !== "register");
 const loading = ref(false);
 const error = ref<string | null>(null);
 

@@ -26,6 +26,7 @@ model Plant {
   level              Int          @default(1)
   xp                 Int          @default(0)
   userId             Int          @default(1) @map("user_id")
+  last_interaction   DateTime     @default(now()) @map("last_interaction")
   user               User         @relation(fields: [userId], references: [id])
   sensorData         SensorData[]
 

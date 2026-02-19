@@ -1,4 +1,5 @@
 import { prisma } from "~~/lib/prisma";
+import { parseSensorData } from "~~/server/utils/transformers";
 
 export default defineEventHandler(async (event) => {
   const method = event.method;
@@ -22,8 +23,9 @@ export default defineEventHandler(async (event) => {
   if (method === "POST") {
     try {
       const body = await readBody(event);
+      const data = parseSensorData(body);
       return await prisma.sensorData.create({
-        data: body,
+        data,
       });
     } catch (err) {
       console.error("Error creating sensor data", err);

@@ -2,7 +2,9 @@ import type { PlantCreateInput, PlantUpdateInput } from "@/types/Plant";
 import { useRequestHeaders } from "#app";
 
 export const usePlants = () => {
-  const headers = process.server ? useRequestHeaders(["cookie"]) : undefined;
+  const headers = import.meta.server
+    ? useRequestHeaders(["cookie"])
+    : undefined;
 
   const fetchPlants = async () =>
     await $fetch("/api/plant", { headers, credentials: "include" });

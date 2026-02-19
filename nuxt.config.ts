@@ -2,9 +2,26 @@ import vuetify, { transformAssetUrls } from "vite-plugin-vuetify";
 
 export default defineNuxtConfig({
   runtimeConfig: {
-    apiBase: "",
-    apiKey: "",
-    public: {},
+    apiBase: process.env.NUXT_API_BASE,
+    apiKey: process.env.NUXT_API_KEY,
+    health: {
+      lossPerWeek: Number(process.env.NUXT_HEALTH_LOSS_PER_WEEK),
+      gainPerCare: Number(process.env.NUXT_HEALTH_GAIN_PER_CARE),
+    },
+    xp: {
+      userPerLevel: Number(process.env.NUXT_XP_USER_PER_LEVEL),
+      plantPerLevel: Number(process.env.NUXT_XP_PLANT_PER_LEVEL),
+      plantValue: Number(process.env.NUXT_XP_PLANT_VALUE),
+    },
+    actions: {
+      water: Number(process.env.NUXT_ACTIONS_WATER),
+      fertilize: Number(process.env.NUXT_ACTIONS_FERTILIZE),
+      sensors: Number(process.env.NUXT_ACTIONS_SENSORS),
+      prune: Number(process.env.NUXT_ACTIONS_PRUNE),
+    },
+    public: {
+      maxSensorPoints: Number(process.env.NUXT_PUBLIC_MAX_SENSOR_POINTS),
+    },
   },
   compatibilityDate: "2025-07-15",
   devtools: { enabled: true },

@@ -1,19 +1,25 @@
 import { prisma } from "~~/lib/prisma";
 import { getUserId } from "~~/server/utils/auth";
+import { calculateCurrentHealth } from "~~/server/utils/health";
+import { parsePlantData } from "~~/server/utils/transformers";
 
 export default defineEventHandler(async (event) => {
   const method = event.method;
-
   const userId = getUserId(event);
 
   if (method === "GET") {
     try {
-      return await prisma.plant.findMany({
+      const plants = await prisma.plant.findMany({
         where: { userId },
         include: {
           sensorData: true,
         },
       });
+
+      return plants.map((plant) => ({
+        ...plant,
+        health: calculateCurrentHealth(plant),
+      }));
     } catch (err) {
       console.error("Error fetching plants", err);
       throw createError({
@@ -26,43 +32,25 @@ export default defineEventHandler(async (event) => {
   if (method === "POST") {
     try {
       const body = await readBody(event);
-
-      const dateFields = [
-        "date_planted",
-        "last_pruning",
-        "last_water",
-        "last_fertilized",
-      ];
-      const decimalFields = [
-        "pref_sun",
-        "pref_air_humidity",
-        "pref_soil_humidity",
-      ];
-      const data: any = { ...body };
-
-      for (const field of dateFields) {
-        if (data[field]) {
-          data[field] = new Date(data[field]);
-        }
-      }
-
-      for (const field of decimalFields) {
-        if (data[field] !== undefined && data[field] !== null) {
-          data[field] = parseFloat(data[field]);
-        }
-      }
+      const data = parsePlantData(body);
 
       const newPlant = await prisma.plant.create({
         data: {
           ...data,
           userId,
+          health: 100,
+          last_interaction: new Date(),
         },
       });
 
-      // Track action for XP
+      // Track action for XP via API call
       try {
-        const { trackAction } = await import("~~/server/utils/xp");
-        await trackAction(getUserId(event), "ADD_PLANT", newPlant.id);
+        const fetcher = useRequestFetch(event);
+        const actionResult: any = await fetcher("/api/user/action", {
+          method: "POST",
+          body: { type: "ADD_PLANT", plantId: newPlant.id },
+        });
+        if (actionResult?.updatedPlant) return actionResult.updatedPlant;
       } catch (e) {
         console.error("Error tracking ADD_PLANT action", e);
       }

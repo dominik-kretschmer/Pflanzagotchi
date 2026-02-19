@@ -135,6 +135,7 @@ Das Prisma-Schema (`prisma/schema.prisma`) definiert folgende Hauptmodelle:
 
 1. **Umgebung konfigurieren**:
    Erstellen Sie eine `.env`-Datei im Root-Verzeichnis:
+
    ```env
    DATABASE_URL=postgresql://pflanzagotchi:devpassword@localhost:5432/pflanzagotchi
    NUXT_API_BASE=https://trefle.io/api/v1
@@ -142,11 +143,13 @@ Das Prisma-Schema (`prisma/schema.prisma`) definiert folgende Hauptmodelle:
    ```
 
 2. **Datenbank starten**:
+
    ```bash
    docker compose up -d
    ```
 
 3. **Prisma & Initialisierung**:
+
    ```bash
    npm install
    npx prisma generate
@@ -162,6 +165,7 @@ Das Prisma-Schema (`prisma/schema.prisma`) definiert folgende Hauptmodelle:
 ## XP- & Level-Logik
 
 ### Nutzer-Level
+
 - Nutzer erhalten XP für:
   - Hinzufügen einer Pflanze: 100 XP (Achievement) + 50 XP (Quest).
   - Gießen: 10 XP.
@@ -171,6 +175,7 @@ Das Prisma-Schema (`prisma/schema.prisma`) definiert folgende Hauptmodelle:
 - Ein Level-Up erfolgt alle 1000 XP.
 
 ### Pflanzen-Level
+
 - Pflanzen erhalten pro Aktion 50 XP.
 - Ein Level-Up erfolgt alle 500 XP.
 - Regelmäßige Pflege erhöht die Gesundheit (`health`) der Pflanze (max. 100%).
@@ -195,6 +200,7 @@ Das Prisma-Schema (`prisma/schema.prisma`) definiert folgende Hauptmodelle:
 ## Roadmap
 
 ### Abgeschlossen (✓)
+
 - Grundlegende UI & Vuetify Integration.
 - Prisma & PostgreSQL Setup.
 - Trefle API Proxy & Integration.
@@ -204,6 +210,7 @@ Das Prisma-Schema (`prisma/schema.prisma`) definiert folgende Hauptmodelle:
 - Daten-Isolation für mehrere Nutzer.
 
 ### Geplant
+
 - Benachrichtigungen bei niedriger Bodenfeuchtigkeit.
 - Erweiterte Statistiken über das Pflanzenwachstum.
 - Foto-Upload für eigene Pflanzen.
@@ -212,4 +219,3 @@ Das Prisma-Schema (`prisma/schema.prisma`) definiert folgende Hauptmodelle:
 ## Lizenz
 
 Internes Studienprojekt.
-

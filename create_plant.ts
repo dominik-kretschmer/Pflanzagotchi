@@ -19,7 +19,7 @@ async function main() {
       pref_air_humidity: 50,
       pref_soil_humidity: 50,
       userId: 1,
-    }
+    },
   });
   console.log("Plant created/ensured");
 }

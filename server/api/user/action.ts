@@ -1,9 +1,9 @@
-import { trackAction } from "~~/server/utils/xp";
+import { trackAction } from "~~/server/utils/actions";
 import { getUserId } from "~~/server/utils/auth";
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
-  const { type } = body;
+  const { type, plantId } = body;
 
   if (!type) {
     throw createError({
@@ -12,5 +12,5 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  return await trackAction(getUserId(event), type);
+  return await trackAction(event, type, plantId);
 });

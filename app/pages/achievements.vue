@@ -22,6 +22,15 @@
       </v-col>
     </v-row>
 
+    <v-alert v-else-if="unauthorized" type="info" variant="tonal" class="mb-6">
+      <div class="d-flex align-center justify-space-between w-100">
+        <span>Bitte melde dich an, um deine Erfolge zu sehen.</span>
+        <div class="d-flex ga-2">
+          <v-btn color="primary" variant="flat" to="/login">Anmelden</v-btn>
+          <v-btn color="secondary" variant="text" to="/login">Registrieren</v-btn>
+        </div>
+      </div>
+    </v-alert>
     <v-alert v-else-if="error" type="error" variant="tonal" class="mb-6">
       Fehler beim Laden der Erfolge: {{ error.message }}
     </v-alert>
@@ -74,9 +83,6 @@
               class="text-success d-flex align-center ga-1"
             >
               <v-icon size="18">mdi-check-circle</v-icon>
-              <span class="text-caption font-weight-bold"
-                >Erhalten am {{ formatDate(ach.users[0].earned_at) }}</span
-              >
             </div>
             <div v-else class="text-medium-emphasis d-flex align-center ga-1">
               <v-icon size="18">mdi-star-outline</v-icon>
@@ -96,9 +102,12 @@ import { computed } from "vue";
 import { useFormat } from "~/composables/useFormat";
 
 const { formatDate } = useFormat();
+const headers = useRequestHeaders(["cookie"]);
 
-const { data: authUser } = await useFetch("/api/auth/me");
-const userId = computed(() => authUser.value?.id || 1);
+const { data: authUser, error: authError } = await useFetch("/api/auth/me", {
+  headers,
+});
+const userId = computed(() => authUser.value?.id);
 
 const {
   data: achievements,
@@ -106,6 +115,13 @@ const {
   error,
 } = await useFetch("/api/achievements", {
   query: { userId },
+  headers,
+});
+
+const unauthorized = computed(() => {
+  const e: any = error?.value || authError?.value || null;
+  const code = (e && (e.statusCode ?? e.data?.statusCode ?? e.status ?? e.response?.status)) ?? null;
+  return code === 401;
 });
 
 const isEarned = (ach: any) => {

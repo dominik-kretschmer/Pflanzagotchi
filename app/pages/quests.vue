@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { computed } from "vue";
 
-const { data: authUser } = await useFetch("/api/auth/me");
+const headers = useRequestHeaders(["cookie"]);
+
+const { data: authUser, error: authError } = await useFetch("/api/auth/me", {
+  headers,
+});
 const userId = computed(() => authUser.value?.id);
 
 const {
@@ -10,6 +14,12 @@ const {
   error,
 } = await useFetch("/api/quests", {
   query: { userId },
+  headers,
+});
+const unauthorized = computed(() => {
+  const e: any = error?.value || authError?.value || null;
+  const code = (e && (e.statusCode ?? e.data?.statusCode ?? e.status ?? e.response?.status)) ?? null;
+  return code === 401;
 });
 const getQuestIcon = (type: string) => {
   switch (type) {
@@ -47,6 +57,15 @@ const getQuestIcon = (type: string) => {
         <v-skeleton-loader type="list-item-two-line" />
       </v-col>
     </v-row>
+    <v-alert v-else-if="unauthorized" type="info" variant="tonal" class="mb-6">
+      <div class="d-flex align-center justify-space-between w-100">
+        <span>Bitte melde dich an, um deine täglichen Quests zu sehen.</span>
+        <div class="d-flex ga-2">
+          <v-btn color="primary" variant="flat" to="/login">Anmelden</v-btn>
+          <v-btn color="secondary" variant="text" to="/login">Registrieren</v-btn>
+        </div>
+      </div>
+    </v-alert>
     <v-alert v-else-if="error" type="error" variant="tonal" class="mb-6">
       Fehler beim Laden der Quests: {{ error.message }}
     </v-alert>

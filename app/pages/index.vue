@@ -84,6 +84,12 @@ const filteredPlants = computed(() => {
 
   return list;
 });
+
+const unauthorized = computed(() => {
+  const e: any = error?.value ?? null;
+  const code = (e && (e.statusCode ?? e.data?.statusCode ?? e.status ?? e.response?.status)) ?? null;
+  return code === 401;
+});
 </script>
 
 <template>
@@ -111,6 +117,23 @@ const filteredPlants = computed(() => {
         <v-skeleton-loader type="image, article" />
       </v-col>
     </v-row>
+
+    <v-alert
+      v-else-if="unauthorized"
+      type="info"
+      variant="tonal"
+      border="start"
+      border-color="info"
+      class="mb-4"
+    >
+      <div class="d-flex align-center justify-space-between w-100">
+        <span>Bitte melde dich an, um deine Pflanzen zu sehen.</span>
+        <div class="d-flex ga-2">
+          <v-btn color="primary" variant="flat" to="/login">Anmelden</v-btn>
+          <v-btn color="secondary" variant="text" to="/login">Registrieren</v-btn>
+        </div>
+      </div>
+    </v-alert>
 
     <v-alert
       v-else-if="error"
