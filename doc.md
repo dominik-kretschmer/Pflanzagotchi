@@ -1,10 +1,10 @@
 # Pflanzagotchi — Projektdokumentation
 
-Zuletzt aktualisiert: 18.02.2026
+Zuletzt aktualisiert: 19.02.2026
 
 ## Übersicht
 
-Pflanzagotchi ist eine Nuxt 4 (Vue 3) Anwendung zur Katalogisierung von Zimmerpflanzen, zur Visualisierung aktueller Sensordaten und zur Anreicherung von Pflanzendaten mit externen botanischen Informationen der Trefle API. Die Anwendung bietet folgende Kernfunktionen:
+Pflanzagotchi ist eine Nuxt 4 (Vue 3) Anwendung zur Katalogisierung von Zimmerpflanzen, zur Visualisierung aktueller Sensordaten und zur Anreicherung von Pflanzendaten mit externen botanischen Informationen der Trefle API. Die Anwendung basiert auf einer **SOLID-konformen Architektur** mit einem dedizierten **Service-Layer** und bietet folgende Kernfunktionen:
 
 - **Pflanzen-Management**: Übersichtsgitter mit Suche, Filtern und Sortierung für die eigenen Pflanzen.
 - **Detailansichten**: Detaillierte Seiten pro Pflanze mit Bildern, Taxonomie und kuratierten Fakten (via Trefle).
@@ -23,7 +23,8 @@ Die App nutzt Vuetify 3 für die UI-Komponenten, Prisma als ORM und PostgreSQL (
 - **UI**: Vuetify ^3.10, Material Design Icons (@mdi/font)
 - **Sprache/Build**: TypeScript, Vite
 - **Lint/Format**: ESLint, Prettier
-- **Datenschicht**: Prisma ^7 mit @prisma/adapter-pg → PostgreSQL 15
+- **Datenschicht**: Prisma ^7 mit @prisma/adapter-pg → PostgreSQL 15 (Service-Layer Pattern)
+- **Konfiguration**: Vollständig über Umgebungsvariablen (`.env`) steuerbar.
 - **Externe Daten**: Trefle API (geproxied über Nuxt Server-Endpoints)
 
 ## Projektstruktur
@@ -62,15 +63,19 @@ Wichtige Ordner und Dateien im Root:
 
 - **API-Endpunkte (server/api/)**:
   - `auth/`: Login, Logout, Registrierung und Session-Info.
-  - `plant/`: REST-API für lokale Pflanzen.
-  - `sensorData/`: REST-API für lokale Sensordaten.
-  - `quests/`: Abruf der täglichen Quests.
-  - `achievements/`: Abruf der Erfolge.
+  - `plant/`: REST-API für lokale Pflanzen (aufgeteilt in spezialisierte Dateien wie `.get.ts`, `.put.ts`, etc.).
+  - `sensorData/`: REST-API für Sensordaten.
+  - `quests/`: Management täglicher Quests.
+  - `achievements/`: Management der Erfolge.
+  - `user/`: Endpunkte für Nutzerdaten, XP und Aktionen.
   - `trefle/`: Proxy für externe Trefle-Anfragen.
 - **Utilities (server/utils/)**:
-  - `xp.ts`: Zentrale Logik für XP-Vergabe, Level-Aufstiege und Achievements.
-  - `quests.ts`: Initialisierung und Management täglicher Quests.
-  - `auth.ts`: Passwort-Hashing und User-Identifizierung aus Cookies.
+  - `services/`: **Service-Layer** (UserService, PlantService, etc.), der die gesamte Prisma-Kommunikation kapselt.
+  - `actions.ts` & `actionConfigs.ts`: Zentraler Orchestrator für Spiel-Aktionen.
+  - `health.ts`: Dynamische Berechnung der Pflanzengesundheit.
+  - `auth.ts`: Passwort-Hashing und User-Identifizierung.
+  - `fetch.ts`: Utility für interne Server-zu-Server API-Calls mit Header-Forwarding.
+  - `transformers.ts`: Zentrale Daten-Validierung und -Transformation.
 
 ## Datenbank & ORM
 
@@ -80,6 +85,7 @@ Das Prisma-Schema (`prisma/schema.prisma`) definiert folgende Hauptmodelle:
   - Metadaten (Name, Typ, Ort, Botanischer Name).
   - Zeitstempel (Gepflanzt, Gießen, Düngen, Schneiden).
   - Progression (XP, Level, Health).
+  - `last_interaction`: Zeitstempel der letzten Pflege zur Gesundheitsberechnung.
   - Relation zu User und SensorData.
 - **User (Tabelle: USER)**:
   - Login-Daten (Email, Passwort-Hash).
@@ -99,10 +105,20 @@ Das Prisma-Schema (`prisma/schema.prisma`) definiert folgende Hauptmodelle:
 - `GET /api/plant`: Liste der Pflanzen des aktuellen Users.
 - `POST /api/plant`: Erstellt eine neue Pflanze.
 - `GET /api/plant/:id`: Details einer spezifischen Pflanze (inkl. Sensordaten).
-- `PUT /api/plant/:id`: Update von Feldern (löst ggf. XP-Tracking aus).
+- `PUT /api/plant/:id`: Update von Feldern.
 - `DELETE /api/plant/:id`: Löscht eine Pflanze.
-- `GET /api/quests`: Liefert die täglichen Quests des Users (initialisiert sie ggf. für den heutigen Tag).
+- `POST /api/user/action`: Zentraler Endpunkt zum Triggern von Aktionen (Gießen, Düngen, etc.).
+- `GET /api/quests`: Liefert die täglichen Quests des Users.
 - `GET /api/achievements`: Liefert alle Achievements inkl. Status des Users.
+
+### Interne Business-Logik (API-Driven)
+
+Um SOLID-Prinzipien einzuhalten, werden Progressionen über interne API-Calls abgewickelt:
+- `POST /api/user/xp`: Aktualisiert User-XP und Level.
+- `POST /api/plant/:id/xp`: Aktualisiert Pflanzen-XP, Level und berechnet Gesundheit.
+- `POST /api/achievements/award`: Verleiht einem Nutzer ein Achievement.
+- `POST /api/quests/progress`: Aktualisiert den Fortschritt von Quests.
+- `POST /api/user/achievement/check-level`: Prüft auf Level-basierte Erfolge.
 
 ### Sensordaten
 
@@ -164,21 +180,26 @@ Das Prisma-Schema (`prisma/schema.prisma`) definiert folgende Hauptmodelle:
 
 ## XP- & Level-Logik
 
+Das gesamte Balancing ist über die `.env`-Datei konfigurierbar.
+
 ### Nutzer-Level
 
-- Nutzer erhalten XP für:
+- Nutzer erhalten XP für verschiedene Aktionen (Standardwerte):
   - Hinzufügen einer Pflanze: 100 XP (Achievement) + 50 XP (Quest).
   - Gießen: 10 XP.
   - Düngen: 20 XP.
   - Sensoren prüfen: 5 XP.
   - Zurückschneiden: 15 XP.
-- Ein Level-Up erfolgt alle 1000 XP.
+- Ein Level-Up erfolgt standardmäßig alle 1000 XP.
 
-### Pflanzen-Level
+### Pflanzen-Level & Gesundheit
 
-- Pflanzen erhalten pro Aktion 50 XP.
+- Pflanzen erhalten pro Aktion standardmäßig 50 XP.
 - Ein Level-Up erfolgt alle 500 XP.
-- Regelmäßige Pflege erhöht die Gesundheit (`health`) der Pflanze (max. 100%).
+- **Dynamische Gesundheit**:
+  - Die Gesundheit sinkt automatisch um **20% pro Woche** (konfigurierbar), wenn keine Interaktion stattfindet.
+  - Die Berechnung erfolgt linear beim Abruf der Daten (`health.ts`).
+  - Jede Pflege-Aktion (Gießen, Düngen, Schneiden) erhöht die Gesundheit um **5 Punkte** (bis max. 100%).
 
 ## Styling & Theming
 
@@ -206,8 +227,11 @@ Das Prisma-Schema (`prisma/schema.prisma`) definiert folgende Hauptmodelle:
 - Trefle API Proxy & Integration.
 - Authentifizierung & Multi-User Support.
 - XP-, Quest- & Achievement-System.
-- Fehlerbehebung bei SSR (Cookie-Forwarding in Composables).
 - Daten-Isolation für mehrere Nutzer.
+- **SOLID-Refactoring & Service-Layer**.
+- **Dynamisches Gesundheitssystem (Zeit-basierter Verfall)**.
+- **API-Driven Architecture** (Interne Progression via $fetch).
+- **Zentrale Konfiguration** via `.env` und RuntimeConfig.
 
 ### Geplant
 
