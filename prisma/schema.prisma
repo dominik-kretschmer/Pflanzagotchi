@@ -8,29 +8,56 @@ datasource db {
 }
 
 model Plant {
-  id                 Int          @id @default(autoincrement())
-  custom_name        String       @db.VarChar(100)
-  name               String       @db.VarChar(100)
-  type               String       @db.VarChar(50)
-  location           String       @db.VarChar(100)
-  date_planted       DateTime     @db.Date
-  last_pruning       DateTime     @map("last_prun") @db.Date
-  last_water         DateTime     @db.Date
-  last_fertilized    DateTime     @map("last_fertelized") @db.Date
+  id                 Int                  @id @default(autoincrement())
+  custom_name        String               @db.VarChar(100)
+  name               String               @db.VarChar(100)
+  type               String               @db.VarChar(50)
+  location           String               @db.VarChar(100)
+  date_planted       DateTime             @db.Date
+  last_pruning       DateTime             @map("last_prun") @db.Date
+  last_water         DateTime             @db.Date
+  last_fertilized    DateTime             @map("last_fertelized") @db.Date
   gen_data           Json
-  botanical_name     String       @db.VarChar(50)
-  pref_sun           Decimal      @db.Decimal(65, 2)
-  pref_air_humidity  Decimal      @db.Decimal(65, 2)
-  pref_soil_humidity Decimal      @db.Decimal(65, 2)
-  health             Int          @default(100)
-  level              Int          @default(1)
-  xp                 Int          @default(0)
-  userId             Int          @default(1) @map("user_id")
-  last_interaction   DateTime     @default(now()) @map("last_interaction")
-  user               User         @relation(fields: [userId], references: [id])
+  botanical_name     String               @db.VarChar(50)
+  pref_sun           Decimal              @db.Decimal(65, 2)
+  pref_air_humidity  Decimal              @db.Decimal(65, 2)
+  pref_soil_humidity Decimal              @db.Decimal(65, 2)
+  health             Int                  @default(100)
+  level              Int                  @default(1)
+  xp                 Int                  @default(0)
+  userId             Int                  @default(1) @map("user_id")
+  last_interaction   DateTime             @default(now()) @map("last_interaction")
+  user               User                 @relation(fields: [userId], references: [id])
   sensorData         SensorData[]
+  growthHistory      PlantGrowthHistory[]
+  statistics         PlantStatistics?
+  images             PlantImage[]
 
   @@map("PLANT")
+}
+
+model PlantGrowthHistory {
+  id        Int      @id @default(autoincrement())
+  plantId   Int      @map("plant_id")
+  timestamp DateTime @default(now()) @db.Timestamp(0)
+  level     Int
+  xp        Int
+  health    Int
+  plant     Plant    @relation(fields: [plantId], references: [id])
+
+  @@map("PLANT_GROWTH_HISTORY")
+}
+
+model PlantStatistics {
+  id                    Int   @id @default(autoincrement())
+  plantId               Int   @unique @map("plant_id")
+  total_water_count     Int   @default(0)
+  total_fertilize_count Int   @default(0)
+  total_prune_count     Int   @default(0)
+  total_sensor_checks   Int   @default(0)
+  plant                 Plant @relation(fields: [plantId], references: [id])
+
+  @@map("PLANT_STATISTICS")
 }
 
 model SensorData {
@@ -58,6 +85,7 @@ model User {
   plants       Plant[]
   achievements UserAchievement[]
   quests       UserQuest[]
+  images       PlantImage[]
 
   @@map("USER")
 }
@@ -109,4 +137,18 @@ model UserQuest {
 
   @@unique([userId, questId, date])
   @@map("USER_QUEST")
+}
+
+model PlantImage {
+  id         Int      @id @default(autoincrement())
+  plantId    Int      @map("plant_id")
+  userId     Int      @map("user_id")
+  filename   String   @db.VarChar(255)
+  url        String   @db.VarChar(255)
+  uploadedAt DateTime @default(now()) @map("uploaded_at")
+  caption    String?  @db.VarChar(255)
+  plant      Plant    @relation(fields: [plantId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
+
+  @@map("PLANT_IMAGE")
 }

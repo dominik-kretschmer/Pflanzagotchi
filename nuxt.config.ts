@@ -19,6 +19,10 @@ export default defineNuxtConfig({
       sensors: Number(process.env.NUXT_ACTIONS_SENSORS),
       prune: Number(process.env.NUXT_ACTIONS_PRUNE),
     },
+    upload: {
+      maxSize: Number(process.env.NUXT_MAX_UPLOAD_SIZE || 5242880),
+      path: process.env.NUXT_UPLOAD_PATH || "public/uploads/plants",
+    },
     public: {
       maxSensorPoints: Number(process.env.NUXT_PUBLIC_MAX_SENSOR_POINTS),
     },
