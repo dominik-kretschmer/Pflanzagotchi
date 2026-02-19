@@ -1,4 +1,3 @@
-import { prisma } from "~~/lib/prisma";
 import { getUserId } from "~~/server/utils/auth";
 import { calculateCurrentHealth } from "~~/server/utils/health";
 
@@ -16,12 +15,7 @@ export default defineEventHandler(async (event) => {
   const userId = getUserId(event);
 
   try {
-    const plant = await prisma.plant.findFirst({
-      where: { id, userId },
-      include: {
-        sensorData: true,
-      },
-    });
+    const plant = await PlantService.findById(id, userId);
 
     if (!plant) {
       throw createError({

@@ -1,4 +1,3 @@
-import { prisma } from "~~/lib/prisma";
 import { verifyPassword } from "~~/server/utils/auth";
 
 export default defineEventHandler(async (event) => {
@@ -12,9 +11,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const user = await prisma.user.findUnique({
-    where: { email },
-  });
+  const user = await UserService.findByEmail(email);
 
   if (!user || !user.password || !verifyPassword(password, user.password)) {
     throw createError({

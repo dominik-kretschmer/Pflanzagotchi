@@ -1,4 +1,3 @@
-import { prisma } from "~~/lib/prisma";
 import { hashPassword } from "~~/server/utils/auth";
 
 export default defineEventHandler(async (event) => {
@@ -12,9 +11,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const existing = await prisma.user.findUnique({
-    where: { email },
-  });
+  const existing = await UserService.findByEmail(email);
 
   if (existing) {
     throw createError({
@@ -23,14 +20,12 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const user = await prisma.user.create({
-    data: {
-      email,
-      password: hashPassword(password),
-      name,
-      xp: 0,
-      level: 1,
-    },
+  const user = await UserService.create({
+    email,
+    password: hashPassword(password),
+    name,
+    xp: 0,
+    level: 1,
   });
 
   // Set session cookie

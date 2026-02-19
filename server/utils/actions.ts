@@ -1,47 +1,13 @@
 import type { H3Event } from "h3";
-
-export interface ActionConfig {
-  baseXp: number;
-  plantXp: number;
-  achievementId?: number;
-  customLogic?: (event: H3Event, plantId?: number) => Promise<void>;
-}
+import { getActionsConfig } from "./actionConfigs";
 
 export async function trackAction(
   event: H3Event,
   type: string,
   plantId?: number,
 ) {
-  const runtimeConfig = useRuntimeConfig();
-  const { actions: actionsXp, xp: xpConfig } = runtimeConfig;
+  const ACTIONS_CONFIG = getActionsConfig();
   const fetcher = useRequestFetch(event);
-
-  const ACTIONS_CONFIG: Record<string, ActionConfig> = {
-    WATER: {
-      baseXp: actionsXp.water,
-      plantXp: xpConfig.plantValue,
-    },
-    FERTILIZE: {
-      baseXp: actionsXp.fertilize,
-      plantXp: xpConfig.plantValue,
-    },
-    SENSORS: {
-      baseXp: actionsXp.sensors,
-      plantXp: xpConfig.plantValue,
-      achievementId: 4,
-    },
-    PRUNE: {
-      baseXp: actionsXp.prune,
-      plantXp: xpConfig.plantValue,
-    },
-    ADD_PLANT: {
-      baseXp: 0,
-      plantXp: 0,
-      customLogic: async (event) => {
-        await fetcher("/api/user/achievement/check-plants", { method: "POST" });
-      },
-    },
-  };
 
   await fetcher("/api/quests/ensure", { method: "POST" });
 
@@ -73,6 +39,8 @@ export async function trackAction(
       method: "POST",
       body: { amount: totalXpAwarded },
     });
+    // Check for level-based user achievements
+    await fetcher("/api/user/achievement/check-level", { method: "POST" });
   }
 
   let updatedPlant = null;
@@ -81,6 +49,8 @@ export async function trackAction(
       method: "POST",
       body: { amount: config.plantXp },
     });
+    // Check for level-based plant achievements
+    await fetcher(`/api/plant/${plantId}/achievement/check-level`, { method: "POST" });
   }
 
   return { totalXpAwarded, updatedPlant };

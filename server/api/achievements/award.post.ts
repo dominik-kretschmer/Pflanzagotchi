@@ -1,4 +1,3 @@
-import { prisma } from "~~/lib/prisma";
 import { getUserId } from "~~/server/utils/auth";
 
 export default defineEventHandler(async (event) => {
@@ -14,15 +13,11 @@ export default defineEventHandler(async (event) => {
   }
 
   // Check if already earned
-  const existing = await prisma.userAchievement.findFirst({
-    where: { userId, achievementId },
-  });
+  const existing = await AchievementService.findUserAchievement(userId, achievementId);
 
   if (existing) return existing;
 
-  const achievement = await prisma.achievement.findUnique({
-    where: { id: achievementId },
-  });
+  const achievement = await AchievementService.findById(achievementId);
 
   if (!achievement) {
     throw createError({
@@ -31,12 +26,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const earned = await prisma.userAchievement.create({
-    data: {
-      userId,
-      achievementId,
-    },
-  });
+  const earned = await AchievementService.awardToUser(userId, achievementId);
 
   // Award XP to user for earning the achievement
   const fetcher = useRequestFetch(event);

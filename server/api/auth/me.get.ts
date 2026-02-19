@@ -1,4 +1,3 @@
-import { prisma } from "~~/lib/prisma";
 import { getUserId } from "~~/server/utils/auth";
 
 export default defineEventHandler(async (event) => {
@@ -9,16 +8,15 @@ export default defineEventHandler(async (event) => {
 
   const userId = getUserId(event);
 
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: {
-      id: true,
-      email: true,
-      name: true,
-      xp: true,
-      level: true,
-    },
-  });
+  const user = await UserService.findById(userId);
 
-  return user;
+  if (!user) return null;
+
+  return {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    xp: user.xp,
+    level: user.level,
+  };
 });

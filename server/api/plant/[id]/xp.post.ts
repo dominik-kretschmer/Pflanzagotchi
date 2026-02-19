@@ -1,4 +1,3 @@
-import { prisma } from "~~/lib/prisma";
 import { getUserId } from "~~/server/utils/auth";
 import { calculateCurrentHealth } from "~~/server/utils/health";
 
@@ -24,9 +23,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const plant = await prisma.plant.findFirst({
-    where: { id: plantId, userId },
-  });
+  const plant = await PlantService.findById(plantId, userId);
 
   if (!plant) {
     throw createError({
@@ -48,24 +45,9 @@ export default defineEventHandler(async (event) => {
   }
 
   const currentHealth = calculateCurrentHealth(plant);
+  const newHealth = Math.min(100, currentHealth + healthGainPerCare);
 
-  const updatedPlant = await prisma.plant.update({
-    where: { id: plantId },
-    data: {
-      xp: newXp,
-      level: newLevel,
-      health: Math.min(100, currentHealth + healthGainPerCare),
-      last_interaction: new Date(),
-    },
-  });
-
-  if (newLevel >= 10 && plant.level < 10) {
-    const fetcher = useRequestFetch(event);
-    await fetcher("/api/achievements/award", {
-      method: "POST",
-      body: { achievementId: 9 }, // Perfektionist
-    });
-  }
+  const updatedPlant = await PlantService.updateXpLevelAndHealth(plantId, newXp, newLevel, newHealth);
 
   return updatedPlant;
 });

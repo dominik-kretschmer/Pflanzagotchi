@@ -1,4 +1,3 @@
-import { prisma } from "~~/lib/prisma";
 import { parseSensorData } from "~~/server/utils/transformers";
 
 export default defineEventHandler(async (event) => {
@@ -6,11 +5,7 @@ export default defineEventHandler(async (event) => {
 
   if (method === "GET") {
     try {
-      return await prisma.sensorData.findMany({
-        include: {
-          plant: true,
-        },
-      });
+      return await SensorDataService.findAll();
     } catch (err) {
       console.error("Error fetching sensor data", err);
       throw createError({
@@ -24,9 +19,7 @@ export default defineEventHandler(async (event) => {
     try {
       const body = await readBody(event);
       const data = parseSensorData(body);
-      return await prisma.sensorData.create({
-        data,
-      });
+      return await SensorDataService.create(data);
     } catch (err) {
       console.error("Error creating sensor data", err);
       throw createError({
