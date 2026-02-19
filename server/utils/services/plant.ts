@@ -44,7 +44,12 @@ export const PlantService = {
     });
   },
 
-  async updateXpLevelAndHealth(id: number, xp: number, level: number, health: number) {
+  async updateXpLevelAndHealth(
+    id: number,
+    xp: number,
+    level: number,
+    health: number,
+  ) {
     return await prisma.plant.update({
       where: { id },
       data: {

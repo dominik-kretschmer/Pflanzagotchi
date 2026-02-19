@@ -20,7 +20,11 @@ export const QuestService = {
     });
   },
 
-  async findIncompleteUserQuestsByType(userId: number, type: string, date: Date) {
+  async findIncompleteUserQuestsByType(
+    userId: number,
+    type: string,
+    date: Date,
+  ) {
     return await prisma.userQuest.findMany({
       where: {
         userId,
@@ -54,7 +58,11 @@ export const QuestService = {
     });
   },
 
-  async updateProgress(userQuestId: number, newValue: number, isCompleted: boolean) {
+  async updateProgress(
+    userQuestId: number,
+    newValue: number,
+    isCompleted: boolean,
+  ) {
     return await prisma.userQuest.update({
       where: { id: userQuestId },
       data: {

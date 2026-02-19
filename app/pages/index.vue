@@ -87,7 +87,10 @@ const filteredPlants = computed(() => {
 
 const unauthorized = computed(() => {
   const e: any = error?.value ?? null;
-  const code = (e && (e.statusCode ?? e.data?.statusCode ?? e.status ?? e.response?.status)) ?? null;
+  const code =
+    (e &&
+      (e.statusCode ?? e.data?.statusCode ?? e.status ?? e.response?.status)) ??
+    null;
   return code === 401;
 });
 </script>
@@ -130,7 +133,9 @@ const unauthorized = computed(() => {
         <span>Bitte melde dich an, um deine Pflanzen zu sehen.</span>
         <div class="d-flex ga-2">
           <v-btn color="primary" variant="flat" to="/login">Anmelden</v-btn>
-          <v-btn color="secondary" variant="text" to="/login">Registrieren</v-btn>
+          <v-btn color="secondary" variant="text" to="/login"
+            >Registrieren</v-btn
+          >
         </div>
       </div>
     </v-alert>

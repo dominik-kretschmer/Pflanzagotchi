@@ -16,7 +16,11 @@ export default defineEventHandler(async (event) => {
   today.setHours(0, 0, 0, 0);
 
   // 1. Find relevant quests for TODAY
-  const userQuests = await QuestService.findIncompleteUserQuestsByType(userId, type, today);
+  const userQuests = await QuestService.findIncompleteUserQuestsByType(
+    userId,
+    type,
+    today,
+  );
 
   let totalXpAwarded = 0;
   const fetcher = useRequestFetch(event);

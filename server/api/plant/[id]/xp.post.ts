@@ -1,5 +1,6 @@
 import { getUserId } from "~~/server/utils/auth";
 import { calculateCurrentHealth } from "~~/server/utils/health";
+import { GrowthHistoryService } from "~~/server/utils/services/growthHistory";
 
 export default defineEventHandler(async (event) => {
   const userId = getUserId(event);
@@ -47,7 +48,19 @@ export default defineEventHandler(async (event) => {
   const currentHealth = calculateCurrentHealth(plant);
   const newHealth = Math.min(100, currentHealth + healthGainPerCare);
 
-  const updatedPlant = await PlantService.updateXpLevelAndHealth(plantId, newXp, newLevel, newHealth);
+  const updatedPlant = await PlantService.updateXpLevelAndHealth(
+    plantId,
+    newXp,
+    newLevel,
+    newHealth,
+  );
+
+  // Record growth history snapshot
+  await GrowthHistoryService.addHistoryEntry(plantId, {
+    level: newLevel,
+    xp: newXp,
+    health: newHealth,
+  });
 
   return updatedPlant;
 });

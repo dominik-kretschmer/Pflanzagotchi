@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
   const userId = getUserId(event);
   const count = await PlantService.countByUserId(userId);
   const fetcher = useRequestFetch(event);
-  
+
   if (count >= 1) {
     await fetcher("/api/achievements/award", {
       method: "POST",

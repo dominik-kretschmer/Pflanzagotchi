@@ -6,11 +6,7 @@ export function parsePlantData(body: any) {
     "last_fertilized",
     "last_interaction",
   ];
-  const decimalFields = [
-    "pref_sun",
-    "pref_air_humidity",
-    "pref_soil_humidity",
-  ];
+  const decimalFields = ["pref_sun", "pref_air_humidity", "pref_soil_humidity"];
   return parseFields(body, dateFields, decimalFields);
 }
 

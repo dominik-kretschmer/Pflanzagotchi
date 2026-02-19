@@ -36,21 +36,33 @@ export default defineEventHandler(async (event) => {
           method: "POST",
           body: { type: "WATER", plantId: id },
         });
-        if (actionResult?.updatedPlant) finalPlant = { ...actionResult.updatedPlant, sensorData: finalPlant?.sensorData };
+        if (actionResult?.updatedPlant)
+          finalPlant = {
+            ...actionResult.updatedPlant,
+            sensorData: finalPlant?.sensorData,
+          };
       }
       if (body.last_fertilized) {
         const actionResult: any = await fetcher("/api/user/action", {
           method: "POST",
           body: { type: "FERTILIZE", plantId: id },
         });
-        if (actionResult?.updatedPlant) finalPlant = { ...actionResult.updatedPlant, sensorData: finalPlant?.sensorData };
+        if (actionResult?.updatedPlant)
+          finalPlant = {
+            ...actionResult.updatedPlant,
+            sensorData: finalPlant?.sensorData,
+          };
       }
       if (body.last_pruning) {
         const actionResult: any = await fetcher("/api/user/action", {
           method: "POST",
           body: { type: "PRUNE", plantId: id },
         });
-        if (actionResult?.updatedPlant) finalPlant = { ...actionResult.updatedPlant, sensorData: finalPlant?.sensorData };
+        if (actionResult?.updatedPlant)
+          finalPlant = {
+            ...actionResult.updatedPlant,
+            sensorData: finalPlant?.sensorData,
+          };
       }
     } catch (e) {
       console.error("Error tracking actions", e);

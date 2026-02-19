@@ -1,5 +1,6 @@
 import type { H3Event } from "h3";
 import { getActionsConfig } from "./actionConfigs";
+import { GrowthHistoryService } from "~~/server/utils/services/growthHistory";
 
 export async function trackAction(
   event: H3Event,
@@ -32,6 +33,10 @@ export async function trackAction(
     if (config.customLogic) {
       await config.customLogic(event, plantId);
     }
+
+    if (plantId) {
+      await GrowthHistoryService.incrementActionCount(plantId, type);
+    }
   }
 
   if (totalXpAwarded > 0) {
@@ -50,7 +55,9 @@ export async function trackAction(
       body: { amount: config.plantXp },
     });
     // Check for level-based plant achievements
-    await fetcher(`/api/plant/${plantId}/achievement/check-level`, { method: "POST" });
+    await fetcher(`/api/plant/${plantId}/achievement/check-level`, {
+      method: "POST",
+    });
   }
 
   return { totalXpAwarded, updatedPlant };

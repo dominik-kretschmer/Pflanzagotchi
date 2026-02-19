@@ -31,7 +31,11 @@ export default defineEventHandler(async (event) => {
     newLevel += 1;
   }
 
-  const updatedUser = await UserService.updateXpAndLevel(userId, newXp, newLevel);
+  const updatedUser = await UserService.updateXpAndLevel(
+    userId,
+    newXp,
+    newLevel,
+  );
 
   return updatedUser;
 });

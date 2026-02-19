@@ -6,7 +6,10 @@ export default defineEventHandler(async (event) => {
   const plantId = plantIdParam ? parseInt(plantIdParam) : null;
 
   if (!plantId || isNaN(plantId)) {
-    throw createError({ statusCode: 400, statusMessage: "Valid Plant ID is required" });
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Valid Plant ID is required",
+    });
   }
 
   const plant = await PlantService.findById(plantId, userId);
@@ -16,7 +19,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const fetcher = useRequestFetch(event);
-  
+
   if (plant.level >= 10) {
     await fetcher("/api/achievements/award", {
       method: "POST",

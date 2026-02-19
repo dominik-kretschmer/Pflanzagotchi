@@ -35,11 +35,37 @@ export const usePlants = () => {
       credentials: "include",
     });
 
+  const uploadImage = async (id: number, file: File, caption?: string) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    if (caption) formData.append("caption", caption);
+
+    return await $fetch(`/api/plant/${id}/images/upload`, {
+      method: "POST",
+      body: formData,
+      headers,
+      credentials: "include",
+    });
+  };
+
+  const fetchImages = async (id: number) =>
+    await $fetch(`/api/plant/${id}/images`, { headers, credentials: "include" });
+
+  const deleteImage = async (plantId: number, imageId: number) =>
+    await $fetch(`/api/plant/${plantId}/images/${imageId}`, {
+      method: "DELETE",
+      headers,
+      credentials: "include",
+    });
+
   return {
     fetchPlants,
     fetchPlant,
     createPlant,
     updatePlant,
     deletePlant,
+    uploadImage,
+    fetchImages,
+    deleteImage,
   };
 };

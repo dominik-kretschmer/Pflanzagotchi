@@ -4,10 +4,12 @@ export const UserService = {
   async findById(id: number, includeRelations = false) {
     return await prisma.user.findUnique({
       where: { id },
-      include: includeRelations ? {
-        achievements: { include: { achievement: true } },
-        quests: { include: { quest: true } },
-      } : undefined,
+      include: includeRelations
+        ? {
+            achievements: { include: { achievement: true } },
+            quests: { include: { quest: true } },
+          }
+        : undefined,
     });
   },
 
@@ -17,7 +19,13 @@ export const UserService = {
     });
   },
 
-  async create(data: { email: string; password?: string; name?: string; xp: number; level: number }) {
+  async create(data: {
+    email: string;
+    password?: string;
+    name?: string;
+    xp: number;
+    level: number;
+  }) {
     return await prisma.user.create({
       data,
     });

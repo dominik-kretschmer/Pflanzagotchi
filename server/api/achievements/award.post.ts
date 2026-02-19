@@ -13,7 +13,10 @@ export default defineEventHandler(async (event) => {
   }
 
   // Check if already earned
-  const existing = await AchievementService.findUserAchievement(userId, achievementId);
+  const existing = await AchievementService.findUserAchievement(
+    userId,
+    achievementId,
+  );
 
   if (existing) return existing;
 
